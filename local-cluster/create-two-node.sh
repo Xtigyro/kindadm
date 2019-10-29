@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-# Create a kINd 3-node cluster
-kind create cluster --config ./kind-config-three.yaml --name kind-three
-export KUBECONFIG="$(kind get kubeconfig-path --name="kind-three")"
+# Create a kINd 2-node cluster
+kind create cluster --config ./kind-config-two.yaml --name kind-two
+export KUBECONFIG="$(kind get kubeconfig-path --name="kind-two")"
 # Deploy Tiller
 kubectl create -f ../tiller.yaml
 # Deploy "local-path" hostPath provisioner
@@ -25,10 +25,10 @@ do
 done
 # Init Helm Client only
 helm init --client-only
-export KUBECONFIG="$(kind get kubeconfig-path --name="kind-three")"
+export KUBECONFIG="$(kind get kubeconfig-path --name="kind-two")"
 # Deploy NGINX Ingress Controller for local K8s
 helm install --name ingress stable/nginx-ingress --set controller.extraArgs.enable-ssl-passthrough="",controller.hostNetwork=true,controller.kind=DaemonSet
 # Put Third Node Labels
-kubectl label node kind-three-worker3 nodeType=devops
+kubectl label node kind-two-worker2 nodeType=devops
 # Taint the node
 # kubectl taint node -l nodeType=devops nodeType=devops:NoExecute

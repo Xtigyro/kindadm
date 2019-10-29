@@ -19,7 +19,7 @@ echo "Waiting for Tiller to become ready....."
 helm list > /dev/null 2>&1
 while [ $? -ne 0 ]
 do
-    sleep 10
+    sleep 15
     echo "Still waiting..."
     helm list > /dev/null 2>&1
 done
@@ -30,4 +30,5 @@ export KUBECONFIG="$(kind get kubeconfig-path --name="kind-one")"
 helm install --name ingress stable/nginx-ingress --set controller.extraArgs.enable-ssl-passthrough="",controller.hostNetwork=true,controller.kind=DaemonSet
 # Put Node Labels
 kubectl label node kind-one-control-plane nodeType=devops
-
+# Taint the node
+# kubectl taint node -l nodeType=devops nodeType=devops:NoExecute
