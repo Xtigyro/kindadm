@@ -29,6 +29,7 @@ export KUBECONFIG="$(kind get kubeconfig-path --name="kind-three")"
 # Deploy NGINX Ingress Controller for local K8s
 helm install --name ingress stable/nginx-ingress --set controller.extraArgs.enable-ssl-passthrough="",controller.hostNetwork=true,controller.kind=DaemonSet
 # Put Third Node Labels
+kubectl label node kind-three-worker2 nodeType=devops
 kubectl label node kind-three-worker3 nodeType=devops
 # Taint the node
 # kubectl taint node -l nodeType=devops nodeType=devops:NoExecute
