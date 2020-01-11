@@ -3,7 +3,6 @@ set -e
 
 # Create a kINd 2-node cluster
 kind create cluster --config ./kind-config-two.yaml --name kind-two
-export KUBECONFIG="$(kind get kubeconfig-path --name="kind-two")"
 # Deploy Tiller
 kubectl create -f ../tiller.yaml
 # Deploy "local-path" hostPath provisioner

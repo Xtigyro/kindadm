@@ -17,19 +17,30 @@ fi
 systemctl start docker
 
 # Install "kubectl"
-curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl \
+echo -e "\nDownloading kubectl binary...\n" \
+&& curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl \
 && chmod +x ./kubectl \
-&& sudo mv ./kubectl /usr/local/bin/kubectl
+&& sudo mv ./kubectl /usr/local/bin/kubectl \
+&& echo -e "kubectl version:\n" \
+&& kubectl version 2>/dev/null \
+&& source <(kubectl completion bash)
 
 # Install "helm"
-HELM_VERSION=v2.14.3
-curl -LO https://get.helm.sh/helm-"$HELM_VERSION"-linux-amd64.tar.gz \
+HELM_VERSION=v2.16.1 \
+&& echo -e "\nDownloading Helm Client binary...\n" \
+&& curl -LO https://get.helm.sh/helm-"$HELM_VERSION"-linux-amd64.tar.gz \
 && tar xf helm-"$HELM_VERSION"-linux-amd64.tar.gz \
 && mv ./linux-amd64/helm ./linux-amd64/tiller /usr/local/bin \
-&& rm -rf ./linux-amd64 helm-"$HELM_VERSION"-linux-amd64.tar.gz
+&& rm -rf ./linux-amd64 helm-"$HELM_VERSION"-linux-amd64.tar.gz \
+&& echo -e "helm version:\n" \
+&& helm version 2>/dev/null \
+&& source <(helm completion bash)
 
 # Install kINd
-KIND_VERSION=v0.5.1 \
+KIND_VERSION=v0.6.1 \
+&& echo -e "\nDownloading kINd binary...\n" \
 && curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/"$KIND_VERSION"/kind-$(uname)-amd64 \
 && chmod +x ./kind \
-&& mv ./kind /usr/local/bin/kind
+&& mv ./kind /usr/local/bin/kind \
+&& echo -e "kINd version:\n" \
+&& kind version
