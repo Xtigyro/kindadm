@@ -43,4 +43,5 @@ KIND_VERSION=v0.6.1 \
 && chmod +x ./kind \
 && mv ./kind /usr/local/bin/kind \
 && echo -e "kINd version:\n" \
-&& kind version
+&& kind version \
+&& source <(kind completion bash)
