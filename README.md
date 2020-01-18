@@ -5,6 +5,7 @@
 To create a local K8s cluster with properly configured Helm, Ingress Controller and MetalLB - please run:
 
 ```bash
-bash local-cluster/prerequisites-cmd.sh
-bash local-cluster/create-[one/two/three]-node.sh
+cd local-cluster
+bash prerequisites-cmd.sh
+bash create-[one/two/three]-node.sh
 ```
