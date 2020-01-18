@@ -2,7 +2,7 @@
 
 ## A Local One, Two or Three-Node K8s Cluster Gunned for Development
 
-To create a K8s local cluster with properly configured Helm, Ingress Controller and MetalLB - please run:
+To create a local K8s cluster with properly configured Helm, Ingress Controller and MetalLB - please run:
 
 ```bash
 bash local-cluster/prerequisites-cmd.sh
