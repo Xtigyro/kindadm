@@ -1,0 +1,15 @@
+releases:
+- name: ingress
+  namespace: ingress
+  tillerNamespace: ingress
+  tillerless: true
+  chart: "stable/nginx-ingress"
+  wait: false
+  installed: true
+  atomic: true
+  values:
+    - controller:
+        extraArgs:
+          enable-ssl-passthrough: ""
+        hostNetwork: true
+        kind: DaemonSet
