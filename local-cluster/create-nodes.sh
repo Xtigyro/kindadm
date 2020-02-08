@@ -14,7 +14,7 @@ case "${NO_NODES}" in
   CLUSTER_WRKS=(kind-3-worker2 kind-3-worker3)
   ;;
   *)
-  echo -e "\e[32m\n\e[1mPass the number of the desired nodes - 1 /2 /3.\e[00m"
+  echo -e "\e[32m\n\e[1mPass the number of the desired nodes - 1|2|3.\e[00m"
   exit 11
   ;;
 esac
