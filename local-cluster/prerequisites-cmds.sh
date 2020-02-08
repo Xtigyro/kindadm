@@ -37,6 +37,14 @@ HELM_VERSION=v2.16.1 \
 && helm version 2>/dev/null \
 && source <(helm completion bash)
 
+# Install "helmfile"
+HELMFILE_VERSION=v0.99.0 \
+&& echo -e "\nDownloading Helmfile binary..." \
+&& curl -LO https://github.com/roboll/helmfile/releases/download/"$HELMFILE_VERSION"/helmfile_linux_amd64 \
+&& chmod +x ./helmfile_linux_amd64 \
+&& mv ./helmfile_linux_amd64 /usr/local/bin/helmfile \
+&& helmfile -v 2>/dev/null
+
 # Install kINd
 KIND_VERSION=v0.7.0 \
 && echo -e "\nDownloading kINd binary..." \
