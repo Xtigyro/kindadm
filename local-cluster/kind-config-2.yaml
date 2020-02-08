@@ -25,4 +25,10 @@ nodes:
 - role: control-plane
 # the three workers
 - role: worker
+  extraMounts:
+    - hostPath: /var/run/docker.sock
+      containerPath: /var/run/docker.sock
 - role: worker
+  extraMounts:
+    - hostPath: /var/run/docker.sock
+      containerPath: /var/run/docker.sock
