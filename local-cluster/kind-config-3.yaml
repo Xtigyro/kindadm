@@ -19,11 +19,8 @@ kubeadmConfigPatchesJson6902:
     - op: add
       path: /apiServer/certSANs/-
       value: my-hostname
-# 1 control plane node and 3 workers
 nodes:
-# the control plane node config
 - role: control-plane
-# the three workers
 - role: worker
   extraMounts:
     - hostPath: /var/run/docker.sock
