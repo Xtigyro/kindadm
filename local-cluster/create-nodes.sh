@@ -26,9 +26,9 @@ kind create cluster --config "${KIND_CFG}" --name kind-"${NO_NODES}"
 yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
 # Deploy MetalLB
 kubectl create -f https://raw.githubusercontent.com/google/metallb/master/manifests/metallb.yaml
-kubectl create -f ../metallb-config.yaml
+kubectl create -f ./metallb-config.yaml
 # Deploy desired svc-s
-helmfile -f ../helmfile.yaml apply > /dev/null
+helmfile -f ./helmfile.yaml apply > /dev/null
 # Get node names
 CLUSTER_WRKS="$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)"
 IFS=$'\n' CLUSTER_WRKS=($CLUSTER_WRKS)
