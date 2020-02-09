@@ -28,9 +28,9 @@ yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
 helmfile -f ./helmfile.yaml apply > /dev/null
 # Get node names
 CLUSTER_WRKS="$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)"
-IFS=$'\n' CLUSTER_WRKS=($CLUSTER_WRKS)
+IFS=$'\n' CLUSTER_WRKS=("${CLUSTER_WRKS}")
 # Put node labels
-for ((i=0;i<=${#CLUSTER_WRKS[@]};i++));
+for ((i=0;i<="${#CLUSTER_WRKS[@]}";i++));
   do
     if [ -n "${CLUSTER_WRKS[i]}" ] ; then
       kubectl label node "${CLUSTER_WRKS[i]}" nodeType=devops
