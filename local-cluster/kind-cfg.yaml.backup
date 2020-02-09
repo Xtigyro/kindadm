@@ -20,16 +20,7 @@ kubeadmConfigPatchesJson6902:
       path: /apiServer/certSANs/-
       value: my-hostname
 nodes:
-- role: control-plane
-- role: worker
-  extraMounts:
-    - hostPath: /var/run/docker.sock
-      containerPath: /var/run/docker.sock
-- role: worker
-  extraMounts:
-    - hostPath: /var/run/docker.sock
-      containerPath: /var/run/docker.sock
-- role: worker
-  extraMounts:
-    - hostPath: /var/run/docker.sock
-      containerPath: /var/run/docker.sock
+  - role: control-plane
+    extraMounts:
+      - hostPath: /var/run/docker.sock
+        containerPath: /var/run/docker.sock
