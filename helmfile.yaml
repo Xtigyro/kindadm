@@ -7,6 +7,7 @@ releases:
   wait: false
   installed: true
   atomic: true
+  timeout: 1200
   values:
     - controller:
         extraArgs:
