@@ -16,7 +16,7 @@ esac
 
 # Adjust the kINd config
 cp "${KIND_CFG}"{,.backup}
-for (( i=0; i<$((${NO_NODES} - 1)); ++i));
+for (( i=0; i<$(("${NO_NODES}" - 1)); ++i));
   do
     echo -e "${KIND_WRKR_CFG}" >> "${KIND_CFG}"
   done
