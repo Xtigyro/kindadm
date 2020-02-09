@@ -1,16 +1,29 @@
-releases:
-- name: ingress
-  namespace: ingress
-  tillerNamespace: ingress
-  tillerless: true
-  chart: "stable/nginx-ingress"
+helmDefaults:
   wait: false
-  installed: true
-  atomic: true
-  timeout: 1200
-  values:
-    - controller:
-        extraArgs:
-          enable-ssl-passthrough: ""
-        hostNetwork: true
-        kind: DaemonSet
+  tillerless: true
+
+releases:
+  - name: ingress
+    namespace: ingress
+    tillerNamespace: ingress
+    chart: "stable/nginx-ingress"
+    installed: true
+    values:
+      - controller:
+          extraArgs:
+            enable-ssl-passthrough: ""
+          hostNetwork: true
+          kind: DaemonSet
+
+  - name: metallb
+    namespace: metallb-system
+    tillerNamespace: metallb-system
+    chart: "stable/metallb"
+    installed: true
+    values:
+      - configInline:
+        address-pools:
+          - name: default
+            protocol: layer2
+            addresses:
+              - 172.17.255.1-172.17.255.250

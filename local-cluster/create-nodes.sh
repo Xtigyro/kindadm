@@ -24,9 +24,6 @@ for (( i=0; i<$((${NO_NODES} - 1)); ++i));
 kind create cluster --config "${KIND_CFG}" --name kind-"${NO_NODES}"
 # Revert the kINd config
 yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
-# Deploy MetalLB
-kubectl create -f https://raw.githubusercontent.com/google/metallb/master/manifests/metallb.yaml
-kubectl create -f ./metallb-config.yaml
 # Deploy desired svc-s
 helmfile -f ./helmfile.yaml apply > /dev/null
 # Get node names
