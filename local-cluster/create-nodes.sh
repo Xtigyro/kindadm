@@ -6,10 +6,10 @@ KIND_CFG="./kind-cfg.yaml"
 KIND_WRKR_CFG=$'\n  - role: worker\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
 
 case "${NO_NODES}" in
-  [1-9])
+  [1-9][0-9])
   ;;
   *)
-  echo -e "\e[32m\n\e[1mPass the number of the desired nodes: 1-9.\e[00m"
+  echo -e "\e[32m\n\e[1mPass the number of the desired nodes: 1-99.\e[00m"
   exit 11
   ;;
 esac
