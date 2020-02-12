@@ -29,8 +29,7 @@ helm init --client-only
 # Deploy desired svc-s
 helmfile -f ./helmfile.yaml apply > /dev/null
 # Get node names
-CLUSTER_WRKS="$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)"
-IFS=$'\n' CLUSTER_WRKS=("${CLUSTER_WRKS}")
+CLUSTER_WRKS=("$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)")
 # Put node labels
 for ((i=0;i<="${#CLUSTER_WRKS[@]}";i++));
   do
