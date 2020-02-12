@@ -40,6 +40,7 @@ HELM_VERSION=v2.16.1 \
 # Install Helm plugins: "helm-tiller" and "helm-diff"
 set +e
 echo -e "\nInstalling Helm plugins: helm-tiller and helm-diff..." \
+&& mkdir -p "$(helm home)/plugins" \
 && helm plugin install https://github.com/rimusz/helm-tiller \
 && helm plugin install https://github.com/databus23/helm-diff
 set -e
