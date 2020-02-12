@@ -38,9 +38,11 @@ HELM_VERSION=v2.16.1 \
 && source <(helm completion bash)
 
 # Install Helm plugins: "helm-tiller" and "helm-diff"
+set +e
 echo -e "\nInstalling Helm plugins: helm-tiller and helm-diff..." \
 && helm plugin install https://github.com/rimusz/helm-tiller \
 && helm plugin install https://github.com/databus23/helm-diff
+set -e
 
 # Install "helmfile"
 HELMFILE_VERSION=v0.99.0 \
