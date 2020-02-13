@@ -24,8 +24,11 @@ for (( i=0; i<$(("${NO_NODES}" - 1)); ++i));
 kind create cluster --config "${KIND_CFG}" --name kind-"${NO_NODES}"
 # Revert the kINd config
 yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
-# Init Helm Client
-helm init --client-only
+# Adjust Tiller K8s permissions
+kubectl create serviceaccount --namespace kube-system tiller
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+# Init Helm
+helm init --service-account tiller
 # Deploy desired svc-s
 helmfile -f ./helmfile.yaml apply > /dev/null
 # Get node names
