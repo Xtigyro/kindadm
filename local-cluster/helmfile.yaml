@@ -22,8 +22,8 @@ releases:
     installed: true
     values:
       - configInline:
-        address-pools:
+          address-pools:
           - name: default
             protocol: layer2
             addresses:
-              - 172.17.255.1-172.17.255.250
+            - 172.17.255.1-172.17.255.250
