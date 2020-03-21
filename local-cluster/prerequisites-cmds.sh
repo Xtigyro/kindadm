@@ -46,7 +46,7 @@ echo -e "\nInstalling Helm plugins: helm-tiller and helm-diff..." \
 set -e
 
 # Install "helmfile"
-HELMFILE_VERSION=v0.102.0 \
+HELMFILE_VERSION=v0.104.0 \
 && echo -e "\nDownloading Helmfile binary..." \
 && curl -LO https://github.com/roboll/helmfile/releases/download/"$HELMFILE_VERSION"/helmfile_linux_amd64 \
 && chmod +x ./helmfile_linux_amd64 \

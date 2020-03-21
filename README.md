@@ -6,6 +6,6 @@ To create a local K8s cluster in Docker container(s) with properly configured He
 
 ```bash
 cd local-cluster
-bash prerequisites-cmd.sh
+bash prerequisites-cmds.sh
 bash create-nodes.sh [1-99]
 ```
