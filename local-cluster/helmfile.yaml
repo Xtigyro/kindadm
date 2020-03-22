@@ -27,3 +27,14 @@ releases:
             protocol: layer2
             addresses:
             - 172.17.255.1-172.17.255.250
+
+  - name: metrics-server
+    namespace: kube-system
+    tillerNamespace: kube-system
+    chart: "stable/metrics-server"
+    installed: true
+    values:
+      - args:
+        - --metric-resolution=30s
+        - --kubelet-insecure-tls
+        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
