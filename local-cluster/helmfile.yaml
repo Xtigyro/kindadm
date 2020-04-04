@@ -1,6 +1,5 @@
 helmDefaults:
   wait: false
-  tillerless: true
 
 releases:
   - name: ingress
