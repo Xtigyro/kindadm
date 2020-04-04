@@ -17,38 +17,39 @@ fi
 sudo systemctl unmask docker \
 && sudo systemctl start docker
 
-# Install "kubectl"
+# Install latest "kubectl"
+KUBECTL_VERSION="$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
 echo -e "\nDownloading kubectl binary..." \
-&& curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl \
+&& curl -LO https://storage.googleapis.com/kubernetes-release/release/"$KUBECTL_VERSION"/bin/linux/amd64/kubectl \
 && chmod +x ./kubectl \
 && yes | sudo mv ./kubectl /usr/local/bin/kubectl \
-&& echo -e "\nkubectl version:" \
-&& kubectl version 2>/dev/null \
 && source <(kubectl completion bash)
+# Commented until this issue is fixed: https://github.com/kubernetes/kubectl/issues/853
+# && echo -e "\nkubectl version:" \
+# && kubectl version 2>/dev/null \
 
 # Install "helm"
-HELM_VERSION=v2.16.5 \
+HELM_VERSION=v3.1.2 \
 && echo -e "\nDownloading Helm Client binary..." \
 && curl -LO https://get.helm.sh/helm-"$HELM_VERSION"-linux-amd64.tar.gz \
 && tar xf helm-"$HELM_VERSION"-linux-amd64.tar.gz \
-&& yes | mv ./linux-amd64/helm ./linux-amd64/tiller /usr/local/bin \
+&& yes | mv ./linux-amd64/helm /usr/local/bin \
 && rm -rf ./linux-amd64 helm-"$HELM_VERSION"-linux-amd64.tar.gz \
 && echo -e "\nhelm version:" \
 && helm version 2>/dev/null \
-&& source <(helm completion bash)
+&& source <(helm completion bash 2>/dev/null)
 
 # Install Helm plugins: "helm-tiller" and "helm-diff"
 set +e
-echo -e "\nInstalling Helm plugins: helm-tiller and helm-diff..." \
-&& mkdir -p "$(helm home)/plugins" \
-&& helm plugin install https://github.com/rimusz/helm-tiller > /dev/null \
-&& helm plugin install https://github.com/databus23/helm-diff > /dev/null
+echo -e "\nInstalling Helm plugins: helm-diff..."
+helm plugin install https://github.com/databus23/helm-diff 2>/dev/null
+echo -e "\nInstalled Helm plugins:"
+helm plugin list 2>/dev/null
 set -e
 
-# Install "helmfile"
-HELMFILE_VERSION=v0.106.3 \
-&& echo -e "\nDownloading Helmfile binary..." \
-&& curl -LO https://github.com/roboll/helmfile/releases/download/"$HELMFILE_VERSION"/helmfile_linux_amd64 \
+# Install latest "helmfile"
+echo -e "\nDownloading Helmfile binary..." \
+&& curl -LO https://github.com/roboll/helmfile/releases/latest/download/helmfile_linux_amd64 \
 && chmod +x ./helmfile_linux_amd64 \
 && yes | mv ./helmfile_linux_amd64 /usr/local/bin/helmfile \
 && helmfile -v 2>/dev/null

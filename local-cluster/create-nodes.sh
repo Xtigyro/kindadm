@@ -24,12 +24,9 @@ for (( i=0; i<$(("${NO_NODES}" - 1)); ++i));
 kind create cluster --config "${KIND_CFG}" --name kind-"${NO_NODES}"
 # Revert the kINd config
 yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
-# Adjust Tiller K8s permissions
-kubectl create serviceaccount --namespace kube-system tiller
-kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
-# Init Helm
-helm init --service-account tiller
 # Deploy desired svc-s
+kubectl create namespace ingress
+kubectl create namespace metallb-system
 helmfile -f ./helmfile.yaml apply > /dev/null
 # Get node names
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)

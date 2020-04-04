@@ -1,11 +1,16 @@
 helmDefaults:
   wait: false
-  tillerless: true
+  atomic: true
+  cleanupOnFail: true
+  force: true
+
+repositories:
+- name: "stable"
+  url: "https://kubernetes-charts.storage.googleapis.com/"
 
 releases:
   - name: ingress
     namespace: ingress
-    tillerNamespace: ingress
     chart: "stable/nginx-ingress"
     installed: true
     values:
@@ -17,7 +22,6 @@ releases:
 
   - name: metallb
     namespace: metallb-system
-    tillerNamespace: metallb-system
     chart: "stable/metallb"
     installed: true
     values:
@@ -30,7 +34,6 @@ releases:
 
   - name: metrics-server
     namespace: kube-system
-    tillerNamespace: kube-system
     chart: "stable/metrics-server"
     installed: true
     values:
