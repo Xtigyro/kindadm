@@ -25,6 +25,8 @@ kind create cluster --config "${KIND_CFG}" --name kind-"${NO_NODES}"
 # Revert the kINd config
 yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
 # Deploy desired svc-s
+kubectl create namespace ingress
+kubectl create namespace metallb-system
 helmfile -f ./helmfile.yaml apply > /dev/null
 # Get node names
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)
