@@ -39,7 +39,7 @@ HELM_VERSION=v3.1.2 \
 && helm version 2>/dev/null \
 && source <(helm completion bash 2>/dev/null)
 
-# Install Helm plugins: "helm-tiller" and "helm-diff"
+# Install Helm plugins: "helm-diff"
 set +e
 echo -e "\nInstalling Helm plugins: helm-diff..."
 helm plugin install https://github.com/databus23/helm-diff 2>/dev/null
