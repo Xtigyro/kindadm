@@ -23,10 +23,9 @@ echo -e "\nDownloading kubectl binary..." \
 && curl -LO https://storage.googleapis.com/kubernetes-release/release/"$KUBECTL_VERSION"/bin/linux/amd64/kubectl \
 && chmod +x ./kubectl \
 && yes | sudo mv ./kubectl /usr/local/bin/kubectl \
-&& source <(kubectl completion bash)
-# Commented until this issue is fixed: https://github.com/kubernetes/kubectl/issues/853
-# && echo -e "\nkubectl version:" \
-# && kubectl version 2>/dev/null \
+&& echo -e "\nkubectl version:" \
+&& kubectl version --client=true 2>/dev/null \
+&& source <(kubectl completion bash 2>/dev/null)
 
 # Install "helm"
 HELM_VERSION=v3.1.2 \
