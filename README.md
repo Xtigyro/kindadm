@@ -9,3 +9,5 @@ cd local-cluster
 bash prerequisites-cmds.sh
 bash create-nodes.sh [1-99]
 ```
+
+> **NOTE**: Those of you who would like to use the automation with Helm v2 - please switch to branch `helm-v2`.
