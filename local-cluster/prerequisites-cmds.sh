@@ -41,7 +41,8 @@ HELM_VERSION=v3.1.2 \
 # Install Helm plugins: "helm-diff"
 set +e
 echo -e "\nInstalling Helm plugins: helm-diff..."
-helm plugin install https://github.com/databus23/helm-diff 2>/dev/null
+helm plugin install https://github.com/databus23/helm-diff >/dev/null 2>&1 \
+|| helm plugin update diff >/dev/null 2>&1
 echo -e "\nInstalled Helm plugins:"
 helm plugin list 2>/dev/null
 set -e
