@@ -1,6 +1,6 @@
 helmDefaults:
-  wait: false
   atomic: true
+  createNamespace: true
   cleanupOnFail: true
   force: true
 
