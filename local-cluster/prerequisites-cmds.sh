@@ -28,7 +28,7 @@ echo -e "\nDownloading kubectl binary..." \
 && source <(kubectl completion bash 2>/dev/null)
 
 # Install "helm"
-HELM_VERSION=v3.2.0 \
+HELM_VERSION=v3.2.1 \
 && echo -e "\nDownloading Helm Client binary..." \
 && curl -LO https://get.helm.sh/helm-"$HELM_VERSION"-linux-amd64.tar.gz \
 && tar xf helm-"$HELM_VERSION"-linux-amd64.tar.gz \
