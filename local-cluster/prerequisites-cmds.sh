@@ -5,13 +5,14 @@ set -e
 OS_ID=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
 
 if [ "$OS_ID" == "\"centos\"" ] || [ "$OS_ID" == "\"rhel\"" ] ; then
-    yum install -y docker-ce
+    yum install -y docker-ce curl
 elif [ "$OS_ID" == "ubuntu" ] ; then
-    apt update && apt install -y docker.io
+    apt update && apt install -y docker.io curl
 else
     echo "Use "${0}" only on RHEL / CentOS / Ubuntu "
     exit 1
 fi
+
 
 # Unmask and start Docker service
 sudo systemctl unmask docker \
