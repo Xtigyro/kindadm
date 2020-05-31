@@ -17,14 +17,15 @@ fi
 sudo systemctl unmask docker \
 && sudo systemctl start docker
 
-# Install "kubectl"
+# Install latest "kubectl"
+KUBECTL_VERSION="$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
 echo -e "\nDownloading kubectl binary..." \
-&& curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl \
+&& curl -LO https://storage.googleapis.com/kubernetes-release/release/"$KUBECTL_VERSION"/bin/linux/amd64/kubectl \
 && chmod +x ./kubectl \
 && yes | sudo mv ./kubectl /usr/local/bin/kubectl \
 && echo -e "\nkubectl version:" \
-&& kubectl version 2>/dev/null \
-&& source <(kubectl completion bash)
+&& kubectl version --client=true 2>/dev/null \
+&& source <(kubectl completion bash 2>/dev/null)
 
 # Install "helm"
 HELM_VERSION=v2.16.5 \
