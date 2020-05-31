@@ -37,18 +37,16 @@ HELM_VERSION=v2.16.5 \
 && helm version 2>/dev/null \
 && source <(helm completion bash)
 
-# Install Helm plugins: "helm-tiller" and "helm-diff"
-set +e
-echo -e "\nInstalling Helm plugins: helm-tiller and helm-diff..." \
-&& mkdir -p "$(helm home)/plugins" \
-&& helm plugin install https://github.com/rimusz/helm-tiller > /dev/null \
-&& helm plugin install https://github.com/databus23/helm-diff > /dev/null
-set -e
+# Install Helm plugins: "helm-diff"
+echo -e "\nInstalling/updating Helm plugins: helm-diff..."
+helm plugin install https://github.com/databus23/helm-diff >/dev/null 2>&1 \
+|| helm plugin update diff >/dev/null 2>&1
+echo -e "\nInstalled Helm plugins:"
+helm plugin list 2>/dev/null
 
-# Install "helmfile"
-HELMFILE_VERSION=v0.106.3 \
-&& echo -e "\nDownloading Helmfile binary..." \
-&& curl -LO https://github.com/roboll/helmfile/releases/download/"$HELMFILE_VERSION"/helmfile_linux_amd64 \
+# Install latest "helmfile"
+echo -e "\nDownloading Helmfile binary..." \
+&& curl -LO https://github.com/roboll/helmfile/releases/latest/download/helmfile_linux_amd64 \
 && chmod +x ./helmfile_linux_amd64 \
 && yes | mv ./helmfile_linux_amd64 /usr/local/bin/helmfile \
 && helmfile -v 2>/dev/null
