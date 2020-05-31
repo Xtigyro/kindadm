@@ -35,6 +35,6 @@ releases:
     installed: true
     values:
       - args:
-        - --metric-resolution=30s
+        - --metric-resolution=60s
         - --kubelet-insecure-tls
         - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
