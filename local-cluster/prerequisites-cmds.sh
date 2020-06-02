@@ -40,7 +40,7 @@ HELM_VERSION=v2.16.7 \
 && source <(helm completion bash)
 
 # Install Helm plugins: "helm-diff", "tiller"
-echo -e "\nInstalling/updating Helm plugins: helm-diff..."
+echo -e "\nInstalling/updating Helm plugins: \"helm-diff\" and \"tiller\"..."
 helm plugin install https://github.com/rimusz/helm-tiller >/dev/null 2>&1 && \
 helm plugin install https://github.com/databus23/helm-diff >/dev/null 2>&1 || \
 helm plugin update diff tiller >/dev/null 2>&1
