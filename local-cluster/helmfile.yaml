@@ -2,6 +2,7 @@ helmDefaults:
   atomic: true
   createNamespace: true
   cleanupOnFail: true
+  timeout: 600
   force: true
 
 repositories:
