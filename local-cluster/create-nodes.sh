@@ -1,18 +1,47 @@
 #!/usr/bin/env bash
 set -e
 
-NO_NODES="${1}"
-KIND_CFG="./kind-cfg.yaml"
-KIND_WRKR_CFG=$'\n  - role: worker\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --nodes*|-n*)
+      if [[ "$1" != *=* ]]; then shift; fi # Value is next arg if no `=`
+      if [[ "$1" != *[1-9][0-9] ]] && [[ "$1" != *[1-9] ]]; then
+        echo -e "\e[32m\n\e[1mNo. of K8s nodes must be: 1-99.\e[00m"
+        exit 1
+      fi
+      NO_NODES="${1#*=}"
+      ;;
+    --k8s_ver*|-k*)
+      if [[ "$1" != *=* ]]; then shift; fi
+      if [[ "$1" != *.*.* ]]; then
+        echo -e "\e[32m\n\e[1mWrong K8s node version. E.g.: 1.18.2\e[00m"
+        exit 2
+      fi
+      K8S_VER="${1#*=}"
+      ;;
+    --helm_ver*|-h*)
+      if [[ "$1" != *=* ]]; then shift; fi
+      HELM_VER="${1#*=}"
+      ;;
+    --help|-h)
+      printf "Meaningful help message" # Flag argument
+      exit 0
+      ;;
+    *)
+      >&2 printf "Error: Invalid argument\n"
+      exit 1
+      ;;
+  esac
+  shift
+done
 
-case "${NO_NODES}" in
-  [1-9]|[1-9][0-9])
-  ;;
-  *)
-  echo -e "\e[32m\n\e[1mPass the number of the desired nodes: 1-99.\e[00m"
-  exit 11
-  ;;
-esac
+echo "${NO_NODES}"
+echo "${K8S_VER}"
+exit 0
+
+KIND_CFG="./kind-cfg.yaml"
+KIND_CTRL_CFG=$'\n  - role: control-plane\n    image: kindest/node:'"${K8S_VER}"$'\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
+KIND_WRKR_CFG=$'\n  - role: worker\n    image: kindest/node:'"${K8S_VER}"$'\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
 
 # Adjust the kINd config
 cp "${KIND_CFG}"{,.backup}
