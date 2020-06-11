@@ -16,24 +16,16 @@ while [ $# -gt 0 ]; do
       fi
       NO_NODES="${1#*=}"
       ;;
-    --k8s_ver*|-kv*)
+    --k8s_ver*|-v*)
       if [[ "$1" != *=* ]]; then shift; fi
-      if [[ "$1" != *.*.* ]]; then
-        printf "\e[32m\n\e[1mIncompatible K8s node ver.\nCorrect syntax: [number].[number].[number]\e[00m\n"
+      if [[ "$1" != *1.*.* ]]; then
+        printf "\e[32m\n\e[1mIncompatible K8s node ver.\nCorrect syntax: 1.[number].[number]\e[00m\n"
         exit 2
       fi
       K8S_VER="${1#*=}"
       ;;
-    --helm_ver*|-hv*)
-      if [[ "$1" != *=* ]]; then shift; fi
-      if [[ "$1" != *.*.* ]]; then
-        printf "\e[32m\n\e[1mIncompatible Helm ver.\nCorrect syntax: [number].[number].[number]\e[00m\n"
-        exit 2
-      fi
-      HELM_VER="${1#*=}"
-      ;;
     --help|-h)
-      printf "\nUsage:\e[32m\e[1m\n    --helm_ver,-hv      Set Helm version to be deployed.\n    --k8s_ver,-kv       Set K8s version to be deployed.\n    --nodes,-n          Set number of K8s nodes to be created.\n    --help,-h           Prints this message.\n\e[00mExample:\e[32m\e[1m\n    bash create-nodes.sh -n=1 -kv=1.18.2 -hv=3.2.3\e[00m\n" # Flag argument
+      printf "\nUsage:\e[32m\e[1m\n    --k8s_ver,-v       Set K8s version to be deployed.\n    --nodes,-n          Set number of K8s nodes to be created.\n    --help,-h           Prints this message.\n\e[00mExample:\e[32m\e[1m\n    bash $0 -n=1 -v=1.18.2\e[00m\n" # Flag argument
       exit 0
       ;;
     *)
@@ -50,8 +42,8 @@ if [[ -z "$K8S_VER" ]]; then
   KIND_CTRL_CFG=$'\n  - role: control-plane\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
   KIND_WRKR_CFG=$'\n  - role: worker\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
 else
-  KIND_CTRL_CFG=$'\n  - role: control-plane\n    image: kindest/node:'"${K8S_VER}"$'\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
-  KIND_WRKR_CFG=$'\n  - role: worker\n    image: kindest/node:'"${K8S_VER}"$'\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
+  KIND_CTRL_CFG=$'\n  - role: control-plane\n    image: kindest/node:v'"${K8S_VER}"$'\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
+  KIND_WRKR_CFG=$'\n  - role: worker\n    image: kindest/node:v'"${K8S_VER}"$'\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
 fi
 
 # Adjust the kINd config
@@ -61,6 +53,7 @@ if [ "${NO_NODES}" == 1 ]; then
 else
   NO_NODES_CREATE="${NO_NODES}"
 fi
+echo -e "${KIND_CTRL_CFG}" >> "${KIND_CFG}"
 for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
   do
     echo -e "${KIND_WRKR_CFG}" >> "${KIND_CFG}"
