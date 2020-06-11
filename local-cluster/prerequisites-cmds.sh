@@ -12,13 +12,13 @@ while [ $# -gt 0 ]; do
     --helm_ver=*|-hv=*)
       if [[ "$1" != *=* ]]; then shift; fi
       if [[ "$1" != *=2.*.* ]]; then
-        printf "\nIncompatible Helm ver.\nSupported syntax/version: ${LIGHT_GREEN}3.[x].[x]${NC}\n"
+        printf "\nIncompatible Helm ver.\nSupported syntax/version: ${LIGHT_GREEN}2.[x].[x]${NC}\n"
         exit 1
       fi
       HELM_VER="${1#*=}"
       ;;
     --help|-h)
-      printf "\nUsage:\n    ${LIGHT_GREEN}--helm_ver,-hv${NC}      Set Helm version to be deployed.\n    ${LIGHT_GREEN}--help,-h${NC}           Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -hv=3.2.3${NC}\n" # Flag argument
+      printf "\nUsage:\n    ${LIGHT_GREEN}--helm_ver,-hv${NC}      Set Helm version to be deployed.\n    ${LIGHT_GREEN}--help,-h${NC}           Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -hv=2.16.8${NC}\n" # Flag argument
       exit 0
       ;;
     *)
