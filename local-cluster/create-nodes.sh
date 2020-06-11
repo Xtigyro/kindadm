@@ -14,8 +14,7 @@ while [ $# -gt 0 ]; do
     --nodes=*|-n=*)
       if [[ "$1" != *=* ]]; then shift; fi # Value is next arg if no `=`
       if [[ "$1" != *=[1-9] ]] && [[ "$1" != *=[1-9][1-9] ]]; then
-        echo $1
-        printf "No. of K8s nodes must be: ${LIGHT_GREEN}1-99${NC}.\n"
+        printf "\nNo. of K8s nodes must be: ${LIGHT_GREEN}1-99${NC}.\n"
         exit 1
       fi
       NO_NODES="${1#*=}"
@@ -23,7 +22,7 @@ while [ $# -gt 0 ]; do
     --k8s_ver=*|-v=*)
       if [[ "$1" != *=* ]]; then shift; fi
       if [[ "$1" != *=1.*.* ]]; then
-        printf "Incompatible K8s node ver.\nCorrect syntax: ${LIGHT_GREEN}1.[number].[number]${NC}\n"
+        printf "\nIncompatible K8s node ver.\nCorrect syntax/version: ${LIGHT_GREEN}1.[x].[x]${NC}\n"
         exit 2
       fi
       K8S_VER="${1#*=}"
@@ -33,15 +32,12 @@ while [ $# -gt 0 ]; do
       exit 0
       ;;
     *)
-      >&2 printf "Error: ${LIGHT_GREEN}Invalid argument${NC}\n"
+      >&2 printf "\nError: ${LIGHT_GREEN}Invalid argument${NC}\n"
       exit 3
       ;;
   esac
   shift
 done
-
-echo "$NO_NODES"
-exit 11
 
 KIND_CFG="./kind-cfg.yaml"
 

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+LIGHT_GREEN='\033[1;32m'
+NC='\033[0m' # No Color
+
 # default Helm version
 HELM_VER='3.2.3'
 
@@ -9,17 +12,17 @@ while [ $# -gt 0 ]; do
     --helm_ver=*|-hv=*)
       if [[ "$1" != *=* ]]; then shift; fi
       if [[ "$1" != *=3.*.* ]]; then
-        printf "\e[32m\n\e[1mIncompatible Helm ver.\nSupported syntax/version: 3.x.x\e[00m\n"
+        printf "\nIncompatible Helm ver.\nSupported syntax/version: ${LIGHT_GREEN}3.[x].[x]${NC}\n"
         exit 1
       fi
       HELM_VER="${1#*=}"
       ;;
     --help|-h)
-      printf "\nUsage:\e[32m\e[1m\n    --helm_ver,-hv      Set Helm version to be deployed.\n    --help,-h           Prints this message.\n\e[00mExample:\e[32m\e[1m\n    bash $0 -hv=3.2.3\e[00m\n" # Flag argument
+      printf "\nUsage:\n    ${LIGHT_GREEN}--helm_ver,-hv${NC}      Set Helm version to be deployed.\n    ${LIGHT_GREEN}--help,-h${NC}           Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -hv=3.2.3${NC}\n" # Flag argument
       exit 0
       ;;
     *)
-      >&2 printf "\e[32m\n\e[1mError: Invalid argument\e[00m\n"
+      >&2 printf "\nError: ${LIGHT_GREEN}Invalid argument${NC}\n"
       exit 2
       ;;
   esac
