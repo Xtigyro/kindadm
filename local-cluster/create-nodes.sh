@@ -45,8 +45,14 @@ while [ $# -gt 0 ]; do
 done
 
 KIND_CFG="./kind-cfg.yaml"
-KIND_CTRL_CFG=$'\n  - role: control-plane\n    image: kindest/node:'"${K8S_VER}"$'\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
-KIND_WRKR_CFG=$'\n  - role: worker\n    image: kindest/node:'"${K8S_VER}"$'\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
+
+if [[ -z "$K8S_VER" ]]; then
+  KIND_CTRL_CFG=$'\n  - role: control-plane\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
+  KIND_WRKR_CFG=$'\n  - role: worker\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
+else
+  KIND_CTRL_CFG=$'\n  - role: control-plane\n    image: kindest/node:'"${K8S_VER}"$'\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
+  KIND_WRKR_CFG=$'\n  - role: worker\n    image: kindest/node:'"${K8S_VER}"$'\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
+fi
 
 # Adjust the kINd config
 cp "${KIND_CFG}"{,.backup}
