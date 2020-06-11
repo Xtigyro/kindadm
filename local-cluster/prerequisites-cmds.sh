@@ -6,9 +6,9 @@ HELM_VER='3.2.3'
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --helm_ver*|-hv*)
+    --helm_ver=*|-hv=*)
       if [[ "$1" != *=* ]]; then shift; fi
-      if [[ "$1" != *3.*.* ]]; then
+      if [[ "$1" != *=3.*.* ]]; then
         printf "\e[32m\n\e[1mIncompatible Helm ver.\nSupported syntax/version: 3.x.x\e[00m\n"
         exit 1
       fi

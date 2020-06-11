@@ -1,40 +1,47 @@
 #!/usr/bin/env bash
 set -e
 
+LIGHT_GREEN='\033[1;32m'
+NC='\033[0m' # No Color
+
 if [[ -z "$1" ]]; then
-  printf "\nAt least no. of K8s nodes must be set. \nUse \e[32m\e[1m\"bash $0 --help\"\e[00m for details.\n"
+  printf "\nAt least no. of K8s nodes must be set. \nUse ${LIGHT_GREEN}\"bash $0 --help\"${NC} for details.\n"
   exit 1
 fi
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --nodes*|-n*)
+    --nodes=*|-n=*)
       if [[ "$1" != *=* ]]; then shift; fi # Value is next arg if no `=`
-      if [[ "$1" != *[1-9][0-9] ]] && [[ "$1" != *[1-9] ]]; then
-        printf "\e[32m\n\e[1mNo. of K8s nodes must be: 1-99.\e[00m\n"
+      if [[ "$1" != *=[1-9] ]] && [[ "$1" != *=[1-9][1-9] ]]; then
+        echo $1
+        printf "No. of K8s nodes must be: ${LIGHT_GREEN}1-99${NC}.\n"
         exit 1
       fi
       NO_NODES="${1#*=}"
       ;;
-    --k8s_ver*|-v*)
+    --k8s_ver=*|-v=*)
       if [[ "$1" != *=* ]]; then shift; fi
-      if [[ "$1" != *1.*.* ]]; then
-        printf "\e[32m\n\e[1mIncompatible K8s node ver.\nCorrect syntax: 1.[number].[number]\e[00m\n"
+      if [[ "$1" != *=1.*.* ]]; then
+        printf "Incompatible K8s node ver.\nCorrect syntax: ${LIGHT_GREEN}1.[number].[number]${NC}\n"
         exit 2
       fi
       K8S_VER="${1#*=}"
       ;;
     --help|-h)
-      printf "\nUsage:\e[32m\e[1m\n    --k8s_ver,-v       Set K8s version to be deployed.\n    --nodes,-n          Set number of K8s nodes to be created.\n    --help,-h           Prints this message.\n\e[00mExample:\e[32m\e[1m\n    bash $0 -n=1 -v=1.18.2\e[00m\n" # Flag argument
+      printf "\nUsage:${LIGHT_GREEN}\n    --k8s_ver,-v       Set K8s version to be deployed.\n    --nodes,-n          Set number of K8s nodes to be created.\n    --help,-h           Prints this message.\n${NC}Example:${LIGHT_GREEN}\n    bash $0 -n=1 -v=1.18.2${NC}\n" # Flag argument
       exit 0
       ;;
     *)
-      >&2 printf "\e[32m\n\e[1mError: Invalid argument\e[00m\n"
+      >&2 printf "Error: ${LIGHT_GREEN}Invalid argument${NC}\n"
       exit 3
       ;;
   esac
   shift
 done
+
+echo "$NO_NODES"
+exit 11
 
 KIND_CFG="./kind-cfg.yaml"
 
