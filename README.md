@@ -6,6 +6,6 @@ To create a local K8s cluster in Docker container(s) with properly configured He
 
 ```bash
 cd local-cluster
-bash prerequisites-cmds.sh --helm_ver=2.[x].[x]           # Helm ver. is optional.
-bash create-nodes.sh --nodes=[1-99] --k8s_ver=1.[x].[x]   # Only no. of K8s nodes is mandatory.
+bash prerequisites-cmds.sh --helm_ver=2.[x].[x]             # Helm ver. is optional.
+bash create-cluster.sh --nodes=[1-99] --k8s_ver=1.[x].[x]   # Only no. of K8s nodes is mandatory.
 ```
