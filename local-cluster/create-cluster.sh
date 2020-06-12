@@ -28,7 +28,7 @@ while [ $# -gt 0 ]; do
       K8S_VER="${1#*=}"
       ;;
     --help|-h)
-      printf "\nUsage:${LIGHT_GREEN}\n    --k8s_ver,-v       Set K8s version to be deployed.\n    --nodes,-n          Set number of K8s nodes to be created.\n    --help,-h           Prints this message.\n${NC}Example:${LIGHT_GREEN}\n    bash $0 -n=1 -v=1.18.2${NC}\n" # Flag argument
+      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}        Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}          Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--help,-h${NC}           Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=1 -v=1.18.2${NC}\n" # Flag argument
       exit 0
       ;;
     *)
