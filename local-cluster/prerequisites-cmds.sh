@@ -5,7 +5,7 @@ LIGHT_GREEN='\033[1;32m'
 NC='\033[0m' # No Color
 
 # default Helm version
-HELM_VER='3.2.3'
+HELM_VER='3.2.4'
 
 while [ $# -gt 0 ]; do
   case "$1" in
