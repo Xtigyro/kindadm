@@ -68,6 +68,7 @@ echo -e "\nDownloading Helm Client binary..." \
 
 # Install/update Helm plugins: "helm-diff", "tiller"
 echo -e "\nInstalling/updating Helm plugins: \"helm-diff\" and \"tiller\"..."
+mkdir -p "$(helm home)/plugins"
 helm plugin install https://github.com/rimusz/helm-tiller >/dev/null 2>&1 && \
 helm plugin install https://github.com/databus23/helm-diff >/dev/null 2>&1 || \
 helm plugin update diff tiller >/dev/null 2>&1
