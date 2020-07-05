@@ -2,7 +2,10 @@
 set -e
 
 LIGHT_GREEN='\033[1;32m'
-NC='\033[0m' # No Color
+LIGHT_RED='\033[1;31m'
+NC='\033[0m'   # No Color
+KIND_CFG="./kind-cfg.yaml"   # base config file
+
 
 if [[ -z "$1" ]]; then
   printf "\nAt least no. of K8s nodes must be set. \nUse ${LIGHT_GREEN}\"bash $0 --help\"${NC} for details.\n"
@@ -27,8 +30,18 @@ while [ $# -gt 0 ]; do
       fi
       K8S_VER="${1#*=}"
       ;;
+    --reset|-r)
+      if [[ -f "${KIND_CFG}.backup" ]]; then
+        yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
+        printf "\nReset: ${LIGHT_GREEN}OK${NC}.\n"
+        exit 0
+      else
+        printf "\nSkipping reset - ${LIGHT_GREEN}no old temporary configuration${NC}.\n"
+        exit 0
+      fi
+      ;;
     --help|-h)
-      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}        Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}          Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--help,-h${NC}           Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=1 -v=1.18.2${NC}\n" # Flag argument
+      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}        Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}          Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--reset,-r${NC}          Resets any old temporary configuration.\n    ${LIGHT_GREEN}--help,-h${NC}           Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=1 -v=1.18.2${NC}\n" # Flag argument
       exit 0
       ;;
     *)
@@ -38,8 +51,6 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
-
-KIND_CFG="./kind-cfg.yaml"
 
 if [[ -z "$K8S_VER" ]]; then
   KIND_CTRL_CFG=$'\n  - role: control-plane\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
