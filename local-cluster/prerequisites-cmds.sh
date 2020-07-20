@@ -52,7 +52,7 @@ echo -e "\nDownloading kubectl binary..." \
 && chmod +x ./kubectl \
 && yes | sudo mv ./kubectl /usr/local/bin/kubectl \
 && echo -e "\nkubectl version:" \
-&& kubectl version --client=true 2>/dev/null \
+&& kubectl version --client=true \
 && source <(kubectl completion bash 2>/dev/null)
 
 # Install "helm"
@@ -62,7 +62,7 @@ echo -e "\nDownloading Helm Client binary..." \
 && yes | mv ./linux-amd64/helm /usr/local/bin \
 && rm -rf ./linux-amd64 helm-v"$HELM_VER"-linux-amd64.tar.gz \
 && echo -e "\nhelm version:" \
-&& helm version 2>/dev/null \
+&& helm version \
 && source <(helm completion bash 2>/dev/null)
 
 # Install/update Helm plugins: "helm-diff"
@@ -77,7 +77,7 @@ echo -e "\nDownloading Helmfile binary..." \
 && curl -LO https://github.com/roboll/helmfile/releases/latest/download/helmfile_linux_amd64 \
 && chmod +x ./helmfile_linux_amd64 \
 && yes | mv ./helmfile_linux_amd64 /usr/local/bin/helmfile \
-&& helmfile -v 2>/dev/null
+&& helmfile -v
 
 # Install kINd
 KIND_VERSION=v0.8.1 \
