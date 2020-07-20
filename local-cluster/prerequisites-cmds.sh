@@ -53,7 +53,7 @@ echo -e "\nDownloading kubectl binary..." \
 && chmod +x ./kubectl \
 && yes | sudo mv ./kubectl /usr/local/bin/kubectl \
 && echo -e "\nkubectl version:" \
-&& kubectl version --client=true 2>/dev/null \
+&& kubectl version --client=true \
 && source <(kubectl completion bash 2>/dev/null)
 
 # Install "helm"
@@ -63,7 +63,7 @@ echo -e "\nDownloading Helm Client binary..." \
 && yes | mv ./linux-amd64/helm /usr/local/bin \
 && rm -rf ./linux-amd64 helm-v"$HELM_VER"-linux-amd64.tar.gz \
 && echo -e "\nhelm version:" \
-&& helm version 2>/dev/null \
+&& helm version --client=true \
 && source <(helm completion bash)
 
 # Install/update Helm plugins: "helm-diff", "tiller"
@@ -71,7 +71,7 @@ echo -e "\nInstalling/updating Helm plugins: \"helm-diff\" and \"tiller\"..."
 mkdir -p "$(helm home)/plugins"
 helm plugin install https://github.com/rimusz/helm-tiller >/dev/null 2>&1 && \
 helm plugin install https://github.com/databus23/helm-diff >/dev/null 2>&1 || \
-helm plugin update diff tiller >/dev/null 2>&1
+helm plugin update diff tiller >/dev/null
 echo -e "\nInstalled Helm plugins:"
 helm plugin list 2>/dev/null
 
@@ -80,7 +80,7 @@ echo -e "\nDownloading Helmfile binary..." \
 && curl -LO https://github.com/roboll/helmfile/releases/latest/download/helmfile_linux_amd64 \
 && chmod +x ./helmfile_linux_amd64 \
 && yes | mv ./helmfile_linux_amd64 /usr/local/bin/helmfile \
-&& helmfile -v 2>/dev/null
+&& helmfile -v
 
 # Install kINd
 KIND_VERSION=v0.8.1 \
