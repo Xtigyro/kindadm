@@ -68,7 +68,7 @@ echo -e "\nDownloading Helm Client binary..." \
 # Install/update Helm plugins: "helm-diff"
 echo -e "\nInstalling/updating Helm plugins: helm-diff..."
 helm plugin install https://github.com/databus23/helm-diff >/dev/null 2>&1 \
-|| helm plugin update diff >/dev/null 2>&1
+|| helm plugin update diff >/dev/null
 echo -e "\nInstalled Helm plugins:"
 helm plugin list 2>/dev/null
 
