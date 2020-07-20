@@ -20,6 +20,7 @@ It downloads and installs the following software:
 2. `kubectl` binary.
 3. `helm` binary.
 4. Helm plugins: `helm-diff`.
-5. `kind` binary.
+5. `helmfile` binary.
+6. `kind` binary.
 
 > **NOTE**: Those of you who would like to use the automation with Helm v2 - please switch to branch `helm-v2`.
