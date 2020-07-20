@@ -62,7 +62,7 @@ echo -e "\nDownloading Helm Client binary..." \
 && yes | mv ./linux-amd64/helm /usr/local/bin \
 && rm -rf ./linux-amd64 helm-v"$HELM_VER"-linux-amd64.tar.gz \
 && echo -e "\nhelm version:" \
-&& helm version \
+&& helm version --client=true \
 && source <(helm completion bash 2>/dev/null)
 
 # Install/update Helm plugins: "helm-diff"
