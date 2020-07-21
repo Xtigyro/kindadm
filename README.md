@@ -6,7 +6,7 @@ Create a local one or multi-node K8s cluster preset for development.
 
 ## Demo
 
-![]()
+![gif](demo.gif)
 
 ## Quick Start
 
