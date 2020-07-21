@@ -1,6 +1,6 @@
 # deploy-kubernetes-kind
 
-Create a local one or multi-node K8s cluster preset for development.
+Create a local one or multi-node K8s cluster preset for development with one command.
 
 > **NOTE**: Those of you who would like to use the automation with Helm v2 - please switch to branch `helm-v2`.
 
@@ -33,7 +33,7 @@ The `prerequisites-cmds.sh` can be used either like a true Shell script, or the 
 
 ## Credits
 
-My name is [Miroslav Hadzhiev](https://www.linkedin.com/in/mehadzhiev/) - a Lead DevOps Engineer located in Sofia, Bulgaria. I'm glad that you liked my package.
+My name is [Miroslav Hadzhiev](https://www.linkedin.com/in/mehadzhiev/) - a DevOps Engineer located in Sofia, Bulgaria. I'm glad that you liked my automation.
 
 ## Licence
 
