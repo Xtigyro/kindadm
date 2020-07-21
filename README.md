@@ -1,6 +1,12 @@
 # deploy-kubernetes-kind
 
-## A Local One or Multi-Node K8s Cluster Gunned for Development
+Create a local one or multi-node K8s cluster preset for development with one command.
+
+## Demo
+
+![gif](demo.gif)
+
+## Quick Start
 
 To create a local K8s cluster in Docker container(s) with properly configured Helm (optionally `tillerless`), Ingress Controller, MetalLB, and Metrics Server - please run:
 
@@ -22,3 +28,11 @@ The `prerequisites-cmds.sh` can be used either like a true Shell script, or the 
 4. Helm plugins: `helm-diff` and `tiller`.
 5. `helmfile` binary.
 6. `kind` binary.
+
+## Credits
+
+My name is [Miroslav Hadzhiev](https://www.linkedin.com/in/mehadzhiev/) - a DevOps Engineer located in Sofia, Bulgaria. I'm glad that you liked my automation.
+
+## Licence
+
+GNU General Public License v2.0
