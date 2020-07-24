@@ -26,8 +26,8 @@ bash create-cluster.sh --nodes=[1-99] --k8s_ver=1.[x].[x]   # Only no. of K8s no
 Usage:
     --k8s_ver,-v         Set K8s version to be deployed.
     --nodes,-n           Set number of K8s nodes to be created.
-    --all-labelled,-al    Set labels on all K8s nodes.
-    --half-labelled,-hl   Set labels on half K8s nodes.
+    --all-labelled,-al   Set labels on all K8s nodes.
+    --half-labelled,-hl  Set labels on half K8s nodes.
     --reset,-r           Resets any old temporary configuration.
     --help,-h            Prints this message.
 Example:
