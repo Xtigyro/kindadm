@@ -10,12 +10,28 @@ Create a local one or multi-node K8s cluster preset for development with one com
 
 ## Quick Start
 
-To create a local K8s cluster in Docker container(s) with properly configured Helm v3, Ingress Controller, MetalLB, and Metrics Server - please run:
+To create a local one or multi-node K8s cluster in Docker container(s) with properly configured Helm v3, Ingress Controller, MetalLB, and Metrics Server - please run:
 
 ```bash
 cd local-cluster
 bash prerequisites-cmds.sh --helm_ver=3.[x].[x]             # Helm ver. is optional.
 bash create-cluster.sh --nodes=[1-99] --k8s_ver=1.[x].[x]   # Only no. of K8s nodes is mandatory.
+```
+
+## Helper Menu
+
+```console
+# bash create-cluster.sh -h
+
+Usage:
+    --k8s_ver,-v         Set K8s version to be deployed.
+    --nodes,-n           Set number of K8s nodes to be created.
+    --all-labeled,-al    Set labels on all K8s nodes.
+    --half-labeled,-hl   Set labels on half K8s nodes.
+    --reset,-r           Resets any old temporary configuration.
+    --help,-h            Prints this message.
+Example:
+    bash create-cluster.sh -n=1 -v=1.18.2 -hl='nodeType=devops'
 ```
 
 ## Prerequisite Notes
