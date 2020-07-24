@@ -22,6 +22,18 @@ while [ $# -gt 0 ]; do
       fi
       NO_NODES="${1#*=}"
       ;;
+    --all-labeled=*|-al=*)
+      if [[ "$1" != *=* ]]; then shift; fi # Value is next arg if no `=`
+      NODE_LABEL="${1#*=}"
+      COEFFICIENT=1
+      ALL_LABELED=true
+      ;;
+    --half-labeled=*|-hl=*)
+      if [[ "$1" != *=* ]]; then shift; fi # Value is next arg if no `=`
+      NODE_LABEL="${1#*=}"
+      COEFFICIENT=0.5
+      HALF_LABELED=true
+      ;;
     --k8s_ver=*|-v=*)
       if [[ "$1" != *=* ]]; then shift; fi
       if [[ "$1" != *=1.*.* ]]; then
@@ -82,13 +94,15 @@ helmfile -f ./helmfile.yaml apply > /dev/null
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)
 IFS=$'\n' CLUSTER_WRKS=(${CLUSTER_WRKS})
 # Put node labels
-for ((i=0;i<="${#CLUSTER_WRKS[@]}";i++));
-  do
-    if [ -n "${CLUSTER_WRKS[i]}" ] ; then
-      kubectl label node "${CLUSTER_WRKS[i]}" nodeType=devops
-    else
-      break
-    fi
-  done
+if [[ ! -z "$ALL_LABELED" ]] || [[ ! -z "$HALF_LABELED" ]]; then
+  for ((i=0;i<=$(("${#CLUSTER_WRKS[@]} * $COEFFICIENT"));i++));
+    do
+      if [ -n "${CLUSTER_WRKS[i]}" ] ; then
+        kubectl label node "${CLUSTER_WRKS[i]}" nodeType=devops
+      else
+        break
+      fi
+    done
+fi
 # Taint the node
 # kubectl taint node -l nodeType=devops nodeType=devops:NoExecute
