@@ -89,16 +89,19 @@ kind create cluster --config "${KIND_CFG}" --name kind-"${NO_NODES}"
 # Revert the kINd config
 yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
 # Deploy desired svc-s
-helmfile -f ./helmfile.yaml apply > /dev/null
+#helmfile -f ./helmfile.yaml apply > /dev/null
 # Get node names
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)
 IFS=$'\n' CLUSTER_WRKS=(${CLUSTER_WRKS})
 # Put node labels
 if [[ ! -z "$ALL_LABELED" ]] || [[ ! -z "$HALF_LABELED" ]]; then
-  for ((i=0;i<=$(("${#CLUSTER_WRKS[@]} * $COEFFICIENT"));i++));
+  NO_NODES_LABELED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT" | awk '{printf("%d\n",$1 + 0.5)}')"
+  echo "${#CLUSTER_WRKS[@]}"
+  echo "$NO_NODES_LABELED"
+  for ((i=0;i<="$NO_NODES_LABELED";i++));
     do
       if [ -n "${CLUSTER_WRKS[i]}" ] ; then
-        kubectl label node "${CLUSTER_WRKS[i]}" nodeType=devops
+        kubectl label node "${CLUSTER_WRKS[i]}" "$NODE_LABEL"
       else
         break
       fi
