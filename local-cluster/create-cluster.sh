@@ -22,6 +22,18 @@ while [ $# -gt 0 ]; do
       fi
       NO_NODES="${1#*=}"
       ;;
+    --all-labelled=*|-al=*)
+      if [[ "$1" != *=* ]]; then shift; fi # Value is next arg if no `=`
+      NODE_LABEL="${1#*=}"
+      COEFFICIENT=1
+      ALL_LABELLED=true
+      ;;
+    --half-labelled=*|-hl=*)
+      if [[ "$1" != *=* ]]; then shift; fi # Value is next arg if no `=`
+      NODE_LABEL="${1#*=}"
+      COEFFICIENT=0.5
+      HALF_LABELLED=true
+      ;;
     --k8s_ver=*|-v=*)
       if [[ "$1" != *=* ]]; then shift; fi
       if [[ "$1" != *=1.*.* ]]; then
@@ -41,7 +53,7 @@ while [ $# -gt 0 ]; do
       fi
       ;;
     --help|-h)
-      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}        Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}          Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--reset,-r${NC}          Resets any old temporary configuration.\n    ${LIGHT_GREEN}--help,-h${NC}           Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=1 -v=1.18.2${NC}\n" # Flag argument
+      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}           Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--all-labelled,-al${NC}   Set labels on all K8s nodes.\n    ${LIGHT_GREEN}--half-labelled,-hl${NC}  Set labels on half K8s nodes.\n    ${LIGHT_GREEN}--reset,-r${NC}           Resets any old temporary configuration.\n    ${LIGHT_GREEN}--help,-h${NC}            Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.18.2 -hl='nodeType=devops' ${NC}\n" # Flag argument
       exit 0
       ;;
     *)
@@ -87,13 +99,18 @@ helmfile -f ./helmfile.yaml apply > /dev/null
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)
 IFS=$'\n' CLUSTER_WRKS=(${CLUSTER_WRKS})
 # Put node labels
-for ((i=0;i<="${#CLUSTER_WRKS[@]}";i++));
+if [[ ! -z "$ALL_LABELLED" ]] || [[ ! -z "$HALF_LABELLED" ]]; then
   do
+  NO_NODES_LABELLED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT" | awk '{printf("%d\n",$1 - 0.5)}')"
     if [ -n "${CLUSTER_WRKS[i]}" ] ; then
+  for ((i=1;i<="$NO_NODES_LABELLED";i++));
       kubectl label node "${CLUSTER_WRKS[i]}" nodeType=devops
+    do
     else
+      kubectl label node "${CLUSTER_WRKS[i]}" "$NODE_LABEL"
       break
+    done
     fi
-  done
+fi
 # Taint the node
 # kubectl taint node -l nodeType=devops nodeType=devops:NoExecute
