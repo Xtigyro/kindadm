@@ -100,17 +100,11 @@ CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)
 IFS=$'\n' CLUSTER_WRKS=(${CLUSTER_WRKS})
 # Put node labels
 if [[ ! -z "$ALL_LABELLED" ]] || [[ ! -z "$HALF_LABELLED" ]]; then
-  do
   NO_NODES_LABELLED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT" | awk '{printf("%d\n",$1 - 0.5)}')"
-    if [ -n "${CLUSTER_WRKS[i]}" ] ; then
   for ((i=1;i<="$NO_NODES_LABELLED";i++));
-      kubectl label node "${CLUSTER_WRKS[i]}" nodeType=devops
     do
-    else
       kubectl label node "${CLUSTER_WRKS[i]}" "$NODE_LABEL"
-      break
     done
-    fi
 fi
 # Taint the node
 # kubectl taint node -l nodeType=devops nodeType=devops:NoExecute
