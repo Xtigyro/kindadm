@@ -53,7 +53,7 @@ while [ $# -gt 0 ]; do
       fi
       ;;
     --help|-h)
-      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}        Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}          Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--reset,-r${NC}          Resets any old temporary configuration.\n    ${LIGHT_GREEN}--help,-h${NC}           Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=1 -v=1.18.2${NC}\n" # Flag argument
+      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}           Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--all-labeled,-al${NC}    Set labels on all K8s nodes.\n    ${LIGHT_GREEN}--half-labeled,-hl${NC}   Set labels on half K8s nodes.\n    ${LIGHT_GREEN}--reset,-r${NC}           Resets any old temporary configuration.\n    ${LIGHT_GREEN}--help,-h${NC}            Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=1 -v=1.18.2 -hl='nodeType=devops' ${NC}\n" # Flag argument
       exit 0
       ;;
     *)
@@ -89,22 +89,16 @@ kind create cluster --config "${KIND_CFG}" --name kind-"${NO_NODES}"
 # Revert the kINd config
 yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
 # Deploy desired svc-s
-#helmfile -f ./helmfile.yaml apply > /dev/null
+helmfile -f ./helmfile.yaml apply > /dev/null
 # Get node names
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)
 IFS=$'\n' CLUSTER_WRKS=(${CLUSTER_WRKS})
 # Put node labels
 if [[ ! -z "$ALL_LABELED" ]] || [[ ! -z "$HALF_LABELED" ]]; then
-  NO_NODES_LABELED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT" | awk '{printf("%d\n",$1 + 0.5)}')"
-  echo "${#CLUSTER_WRKS[@]}"
-  echo "$NO_NODES_LABELED"
-  for ((i=0;i<="$NO_NODES_LABELED";i++));
+  NO_NODES_LABELED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT" | awk '{printf("%d\n",$1 - 0.5)}')"
+  for ((i=1;i<="$NO_NODES_LABELED";i++));
     do
-      if [ -n "${CLUSTER_WRKS[i]}" ] ; then
-        kubectl label node "${CLUSTER_WRKS[i]}" "$NODE_LABEL"
-      else
-        break
-      fi
+      kubectl label node "${CLUSTER_WRKS[i]}" "$NODE_LABEL"
     done
 fi
 # Taint the node
