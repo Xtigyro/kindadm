@@ -15,7 +15,6 @@ fi
 while [ $# -gt 0 ]; do
   case "$1" in
     --nodes=*|-n=*)
-      if [[ "$1" != *=* ]]; then shift; fi # Value is next arg if no `=`
       if [[ "$1" != *=[1-9] ]] && [[ "$1" != *=[1-9][1-9] ]]; then
         printf "\nNo. of K8s nodes must be: ${LIGHT_GREEN}1-99${NC}.\n"
         exit 1
@@ -23,19 +22,22 @@ while [ $# -gt 0 ]; do
       NO_NODES="${1#*=}"
       ;;
     --all-labelled=*|-al=*)
-      if [[ "$1" != *=* ]]; then shift; fi # Value is next arg if no `=`
       NODE_LABEL="${1#*=}"
-      COEFFICIENT=1
-      ALL_LABELLED=true
+      COEFFICIENT_LABEL=1
       ;;
     --half-labelled=*|-hl=*)
-      if [[ "$1" != *=* ]]; then shift; fi # Value is next arg if no `=`
       NODE_LABEL="${1#*=}"
-      COEFFICIENT=0.5
-      HALF_LABELLED=true
+      COEFFICIENT_LABEL=0.5
+      ;;
+    --all-tainted=*|-at=*|--all-tainted|-at)
+      if [[ "$1" == *=* ]]; then NODE_TAINT_LABEL="${1#*=}"; fi
+      COEFFICIENT_TAINT=1
+      ;;
+    --half-tainted=*|-ht=*|--half-tainted|-ht)
+      if [[ "$1" == *=* ]]; then NODE_TAINT_LABEL="${1#*=}"; fi
+      COEFFICIENT_TAINT=0.5
       ;;
     --k8s_ver=*|-v=*)
-      if [[ "$1" != *=* ]]; then shift; fi
       if [[ "$1" != *=1.*.* ]]; then
         printf "\nIncompatible K8s node ver.\nCorrect syntax/version: ${LIGHT_GREEN}1.[x].[x]${NC}\n"
         exit 2
@@ -53,7 +55,7 @@ while [ $# -gt 0 ]; do
       fi
       ;;
     --help|-h)
-      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}           Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--all-labelled,-al${NC}   Set labels on all K8s nodes.\n    ${LIGHT_GREEN}--half-labelled,-hl${NC}  Set labels on half K8s nodes.\n    ${LIGHT_GREEN}--reset,-r${NC}           Resets any old temporary configuration.\n    ${LIGHT_GREEN}--help,-h${NC}            Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.18.2 -hl='nodeType=devops' ${NC}\n" # Flag argument
+      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}           Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--all-labelled,-al${NC}   Set labels on all K8s nodes.\n    ${LIGHT_GREEN}--half-labelled,-hl${NC}  Set labels on half K8s nodes.\n    ${LIGHT_GREEN}--all-tainted,-at${NC}    Set taints on all K8s nodes. A different label can be defined.\n    ${LIGHT_GREEN}--half-tainted,-ht${NC}   Set taints on half K8s nodes. A different label can be defined.\n    ${LIGHT_GREEN}--reset,-r${NC}           Resets any old temporary configuration.\n    ${LIGHT_GREEN}--help,-h${NC}            Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.18.2 -hl='nodeType=devops' -ht ${NC}\n" # Flag argument
       exit 0
       ;;
     *)
@@ -84,22 +86,38 @@ for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
   do
     echo -e "${KIND_WRKR_CFG}" >> "${KIND_CFG}"
   done
+
 # Create kINd cluster
 kind create cluster --config "${KIND_CFG}" --name kind-"${NO_NODES}"
+
 # Revert the kINd config
 yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
+
 # Deploy desired svc-s
 helmfile -f ./helmfile.yaml apply > /dev/null
+
 # Get node names
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)
 IFS=$'\n' CLUSTER_WRKS=(${CLUSTER_WRKS})
+
 # Put node labels
-if [[ ! -z "$ALL_LABELLED" ]] || [[ ! -z "$HALF_LABELLED" ]]; then
-  NO_NODES_LABELLED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT" | awk '{printf("%d\n",$1 - 0.5)}')"
+if [[ ! -z "$COEFFICIENT_LABEL" ]]; then
+  NO_NODES_LABELLED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_LABEL" | awk '{printf("%d\n",$1 - 0.5)}')"
   for ((i=1;i<="$NO_NODES_LABELLED";i++));
     do
       kubectl label node "${CLUSTER_WRKS[i]}" "$NODE_LABEL"
     done
 fi
-# Taint the node
-# kubectl taint node -l nodeType=devops nodeType=devops:NoExecute
+
+# Taint the nodes with "NoExecute"
+if [[ ! -z "$COEFFICIENT_TAINT" ]]; then
+  NO_NODES_TAINTED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_TAINT" | awk '{printf("%d\n",$1 - 0.5)}')"
+  for ((i=1;i<="$NO_NODES_TAINTED";i++));
+    do
+      if [[ ! -z "$NODE_LABEL" ]] && [[ -z "$NODE_TAINT_LABEL" ]] ; then
+        kubectl taint node "${CLUSTER_WRKS[i]}" "$NODE_LABEL":NoExecute
+      else
+        kubectl taint node "${CLUSTER_WRKS[i]}" "$NODE_TAINT_LABEL":NoExecute
+      fi
+    done
+fi
