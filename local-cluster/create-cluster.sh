@@ -94,7 +94,7 @@ kind create cluster --config "${KIND_CFG}" --name kind-"${NO_NODES}"
 yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
 
 # Deploy desired svc-s
-#  helmfile -f ./helmfile.yaml apply > /dev/null
+helmfile -f ./helmfile.yaml apply > /dev/null
 
 # Get node names
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)
