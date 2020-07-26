@@ -24,10 +24,12 @@ Usage:
     --nodes,-n           Set number of K8s nodes to be created.
     --all-labelled,-al   Set labels on all K8s nodes.
     --half-labelled,-hl  Set labels on half K8s nodes.
+    --all-tainted,-at    Set taints on all K8s nodes. A different label can be defined.
+    --half-tainted,-ht   Set taints on half K8s nodes. A different label can be defined.
     --reset,-r           Resets any old temporary configuration.
     --help,-h            Prints this message.
 Example:
-    bash create-cluster.sh -n=2 -v=1.18.2 -hl='nodeType=devops'
+    bash create-cluster.sh -n=2 -v=1.18.2 -hl='nodeType=devops' -ht
 ```
 
 ## Prerequisite Notes
