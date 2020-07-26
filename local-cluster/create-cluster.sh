@@ -36,6 +36,7 @@ while [ $# -gt 0 ]; do
     --half-tainted=*|-ht=*|--half-tainted|-ht)
       if [[ "$1" == *=* ]]; then NODE_TAINT_LABEL="${1#*=}"; fi
       COEFFICIENT_TAINT=0.5
+      ;;
     --k8s_ver=*|-v=*)
       if [[ "$1" != *=1.*.* ]]; then
         printf "\nIncompatible K8s node ver.\nCorrect syntax/version: ${LIGHT_GREEN}1.[x].[x]${NC}\n"
