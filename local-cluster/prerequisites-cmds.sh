@@ -10,7 +10,6 @@ HELM_VER='2.16.9'
 while [ $# -gt 0 ]; do
   case "$1" in
     --helm_ver=*|-hv=*)
-      if [[ "$1" != *=* ]]; then shift; fi
       if [[ "$1" != *=2.*.* ]]; then
         printf "\nIncompatible Helm ver.\nSupported syntax/version: ${LIGHT_GREEN}2.[x].[x]${NC}\n"
         exit 1
