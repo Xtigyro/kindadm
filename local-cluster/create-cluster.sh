@@ -26,14 +26,14 @@ function contains_string {
   return "$result"
 }
 
-function reset_clusters {
+function purge_clusters {
   select choice in "ALL_CLUSTERS" "PER_CLUSTER"; do
   case "$choice" in
     ALL_CLUSTERS) echo "$choice";
     IFS=' ' read -a clusters <<< "$K8S_CLUSTERS"
     break;;
     PER_CLUSTER) echo "$choice";
-    echo "Which cluster to remove?";
+    echo "Which cluster to purge?";
     read -p "[ $K8S_CLUSTERS ]: " K8S_CLUSTER;
     if ! `contains_string "$K8S_CLUSTERS" "$K8S_CLUSTER"`; then
       echo "Invalid cluster name."
@@ -80,8 +80,8 @@ while [ $# -gt 0 ]; do
       fi
       K8S_VER="${1#*=}"
       ;;
-    --reset|-r)
-      reset_clusters
+    --purge|-p)
+      purge_clusters
       if [[ -f "${KIND_CFG}.backup" ]]; then
         yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
         printf "\n${LIGHT_GREEN}Old temporary configuration - cleaned.${NC}. "
@@ -98,7 +98,7 @@ while [ $# -gt 0 ]; do
       exit 0
       ;;
     --help|-h)
-      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}           Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--all-labelled,-al${NC}   Set labels on all K8s nodes.\n    ${LIGHT_GREEN}--half-labelled,-hl${NC}  Set labels on half K8s nodes.\n    ${LIGHT_GREEN}--all-tainted,-at${NC}    Set taints on all K8s nodes. A different label can be defined.\n    ${LIGHT_GREEN}--half-tainted,-ht${NC}   Set taints on half K8s nodes. A different label can be defined.\n    ${LIGHT_GREEN}--reset,-r${NC}           Resets any old temporary configuration.\n    ${LIGHT_GREEN}--help,-h${NC}            Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.18.2 -hl='nodeType=devops' -ht ${NC}\n" # Flag argument
+      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}           Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--all-labelled,-al${NC}   Set labels on all K8s nodes.\n    ${LIGHT_GREEN}--half-labelled,-hl${NC}  Set labels on half K8s nodes.\n    ${LIGHT_GREEN}--all-tainted,-at${NC}    Set taints on all K8s nodes. A different label can be defined.\n    ${LIGHT_GREEN}--half-tainted,-ht${NC}   Set taints on half K8s nodes. A different label can be defined.\n    ${LIGHT_GREEN}--purge,-p${NC}           Purges any existing clusters and temp configs.\n    ${LIGHT_GREEN}--help,-h${NC}            Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.18.2 -hl='nodeType=devops' -ht ${NC}\n" # Flag argument
       exit 0
       ;;
     *)
