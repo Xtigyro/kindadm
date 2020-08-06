@@ -5,7 +5,7 @@ LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
 NC='\033[0m'   # No Color
 KIND_CFG="./kind-cfg.yaml"   # base config file
-K8S_CLUSTERS="$(kind get clusters)"
+K8S_CLUSTERS="$(kind get clusters 2>/dev/null)"
 IFS=$'\n' K8S_CLUSTERS=(${K8S_CLUSTERS})
 
 if [[ -z "$1" ]]; then
@@ -33,16 +33,16 @@ function reset_clusters {
     IFS=' ' read -a clusters <<< "$K8S_CLUSTERS"
     break;;
     PER_CLUSTER) echo "$choice";
-    echo "What K8s cluster to remove?";
+    echo "Which cluster to remove?";
     read -p "[ $K8S_CLUSTERS ]: " K8S_CLUSTER;
     if ! `contains_string "$K8S_CLUSTERS" "$K8S_CLUSTER"`; then
       echo "Invalid cluster name."
-      exit 9
+      exit 2
     fi
     declare -a clusters=("$K8S_CLUSTER");
     break;;
     *) echo "'ALL_CLUSTERS' or 'PER_CLUSTER' must be chosen.";
-    exit 10;
+    exit 3;
     break;;
   esac
   done
@@ -53,7 +53,7 @@ while [ $# -gt 0 ]; do
     --nodes=*|-n=*)
       if [[ "$1" != *=[1-9] ]] && [[ "$1" != *=[1-9][1-9] ]]; then
         printf "\nNo. of K8s nodes must be: ${LIGHT_GREEN}1-99${NC}.\n"
-        exit 1
+        exit 4
       fi
       NO_NODES="${1#*=}"
       ;;
@@ -76,7 +76,7 @@ while [ $# -gt 0 ]; do
     --k8s_ver=*|-v=*)
       if [[ "$1" != *=1.*.* ]]; then
         printf "\nIncompatible K8s node ver.\nCorrect syntax/version: ${LIGHT_GREEN}1.[x].[x]${NC}\n"
-        exit 2
+        exit 5
       fi
       K8S_VER="${1#*=}"
       ;;
@@ -84,17 +84,17 @@ while [ $# -gt 0 ]; do
       reset_clusters
       if [[ -f "${KIND_CFG}.backup" ]]; then
         yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
-        printf "\n${LIGHT_GREEN}Old temporary configuration - cleaned.${NC}."
+        printf "\n${LIGHT_GREEN}Old temporary configuration - cleaned.${NC}. "
       else
-        printf "\n${LIGHT_GREEN}No old temporary configuration${NC}."
+        printf "\n${LIGHT_GREEN}No old temporary configuration${NC}. "
       fi
-      for ((i=1;i<="${#clusters[@]}";i++));
+      for ((i=0;i<"${#clusters[@]}";i++));
         do
-          # kind delete --name "${K8S_CLUSTERS[i]}"
           echo "${clusters[i]}"
-          kind get clusters
+          kind delete cluster --name "${clusters[i]}"
         done
-      printf "Reset: ${LIGHT_GREEN}OK${NC}.\n"
+      printf "\n${LIGHT_GREEN}Clusters left:${NC} "
+      kind get clusters
       exit 0
       ;;
     --help|-h)
@@ -103,7 +103,7 @@ while [ $# -gt 0 ]; do
       ;;
     *)
       >&2 printf "\nError: ${LIGHT_GREEN}Invalid argument${NC}\n"
-      exit 3
+      exit 6
       ;;
   esac
   shift
