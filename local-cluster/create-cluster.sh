@@ -81,17 +81,21 @@ while [ $# -gt 0 ]; do
       K8S_VER="${1#*=}"
       ;;
     --reset|-r)
+      reset_clusters
       if [[ -f "${KIND_CFG}.backup" ]]; then
         yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
-        reset_clusters
-        printf "\nReset: ${LIGHT_GREEN}OK${NC}.\n"
-        exit 0
+        printf "\n${LIGHT_GREEN}Old temporary configuration - cleaned.${NC}."
       else
-        printf "\n${LIGHT_GREEN}No old temporary configuration${NC}.\n"
-        reset_clusters
-        printf "\nReset: ${LIGHT_GREEN}OK${NC}.\n"
-        exit 0
+        printf "\n${LIGHT_GREEN}No old temporary configuration${NC}."
       fi
+      for ((i=1;i<="${#clusters[@]}";i++));
+        do
+          # kind delete --name "${K8S_CLUSTERS[i]}"
+          echo "${clusters[i]}"
+          kind get clusters
+        done
+      printf "Reset: ${LIGHT_GREEN}OK${NC}.\n"
+      exit 0
       ;;
     --help|-h)
       printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}           Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--all-labelled,-al${NC}   Set labels on all K8s nodes.\n    ${LIGHT_GREEN}--half-labelled,-hl${NC}  Set labels on half K8s nodes.\n    ${LIGHT_GREEN}--all-tainted,-at${NC}    Set taints on all K8s nodes. A different label can be defined.\n    ${LIGHT_GREEN}--half-tainted,-ht${NC}   Set taints on half K8s nodes. A different label can be defined.\n    ${LIGHT_GREEN}--reset,-r${NC}           Resets any old temporary configuration.\n    ${LIGHT_GREEN}--help,-h${NC}            Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.18.2 -hl='nodeType=devops' -ht ${NC}\n" # Flag argument
