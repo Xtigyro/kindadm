@@ -5,7 +5,8 @@ LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
 NC='\033[0m'   # No Color
 KIND_CFG="./kind-cfg.yaml"   # base config file
-K8S_CLUSTERS="$()"
+K8S_CLUSTERS="$(kind get clusters)"
+IFS=$'\n' K8S_CLUSTERS=(${K8S_CLUSTERS})
 
 if [[ -z "$1" ]]; then
   printf "\nAt least no. of K8s nodes must be set. \nUse ${LIGHT_GREEN}\"bash $0 --help\"${NC} for details.\n"
@@ -13,7 +14,7 @@ if [[ -z "$1" ]]; then
 fi
 
 # predefined functions
-function contains {
+function contains_string {
   local list="$1"
   local item="$2"
   if [[ "$list" =~ (^|[[:space:]])"$item"($|[[:space:]]) ]]; then
@@ -25,25 +26,27 @@ function contains {
   return "$result"
 }
 
-select choice in "ALL_CLUSTERS" "PER_CLUSTER"; do
-case "$choice" in
-  ALL_CLUSTERS) echo "$choice";
-  IFS=' ' read -a clusters <<< "$K8S_CLUSTERS"
-  break;;
-  PER_CLUSTER) echo "$choice";
-  echo "What K8s cluster to remove?";
-  read -p "[ $K8S_CLUSTERS ]: " K8S_CLUSTER;
-  if ! `contains "$K8S_CLUSTERS" "$TEAM_NAME"`; then
-    echo "Invalid team name."
-    exit 9
-  fi
-  declare -a clusters=("$K8S_CLUSTER");
-  break;;
-  *) echo "'ALL_CLUSTERS' or 'PER_CLUSTER' must be chosen.";
-  exit 10;
-  break;;
-esac
-done
+function reset_clusters {
+  select choice in "ALL_CLUSTERS" "PER_CLUSTER"; do
+  case "$choice" in
+    ALL_CLUSTERS) echo "$choice";
+    IFS=' ' read -a clusters <<< "$K8S_CLUSTERS"
+    break;;
+    PER_CLUSTER) echo "$choice";
+    echo "What K8s cluster to remove?";
+    read -p "[ $K8S_CLUSTERS ]: " K8S_CLUSTER;
+    if ! `contains_string "$K8S_CLUSTERS" "$K8S_CLUSTER"`; then
+      echo "Invalid cluster name."
+      exit 9
+    fi
+    declare -a clusters=("$K8S_CLUSTER");
+    break;;
+    *) echo "'ALL_CLUSTERS' or 'PER_CLUSTER' must be chosen.";
+    exit 10;
+    break;;
+  esac
+  done
+}
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -80,10 +83,13 @@ while [ $# -gt 0 ]; do
     --reset|-r)
       if [[ -f "${KIND_CFG}.backup" ]]; then
         yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
+        reset_clusters
         printf "\nReset: ${LIGHT_GREEN}OK${NC}.\n"
         exit 0
       else
-        printf "\nSkipping reset - ${LIGHT_GREEN}no old temporary configuration${NC}.\n"
+        printf "\n${LIGHT_GREEN}No old temporary configuration${NC}.\n"
+        reset_clusters
+        printf "\nReset: ${LIGHT_GREEN}OK${NC}.\n"
         exit 0
       fi
       ;;
