@@ -5,8 +5,7 @@ LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
 NC='\033[0m'   # No Color
 KIND_CFG="./kind-cfg.yaml"   # base config file
-K8S_CLUSTERS="$(kind get clusters 2>/dev/null)"
-IFS=$'\n' K8S_CLUSTERS=(${K8S_CLUSTERS})
+K8S_CLUSTERS="$(kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
 
 if [[ -z "$1" ]]; then
   printf "\nAt least no. of K8s nodes must be set. \nUse ${LIGHT_GREEN}\"bash $0 --help\"${NC} for details.\n"
@@ -30,16 +29,16 @@ function purge_clusters {
   select choice in "ALL_CLUSTERS" "PER_CLUSTER"; do
   case "$choice" in
     ALL_CLUSTERS) echo "$choice";
-    IFS=' ' read -a clusters <<< "$K8S_CLUSTERS"
+    IFS='\n' declare -g clusters=(${K8S_CLUSTERS});
     break;;
     PER_CLUSTER) echo "$choice";
     echo "Which cluster to purge?";
-    read -p "[ $K8S_CLUSTERS ]: " K8S_CLUSTER;
-    if ! `contains_string "$K8S_CLUSTERS" "$K8S_CLUSTER"`; then
+    read -p "[ ${K8S_CLUSTERS} ]: " K8S_CLUSTER;
+    if ! `contains_string "${K8S_CLUSTERS}" "$K8S_CLUSTER"`; then
       echo "Invalid cluster name."
       exit 2
     fi
-    declare -a clusters=("$K8S_CLUSTER");
+    declare -g clusters=("$K8S_CLUSTER");
     break;;
     *) echo "'ALL_CLUSTERS' or 'PER_CLUSTER' must be chosen.";
     exit 3;
@@ -84,16 +83,15 @@ while [ $# -gt 0 ]; do
       purge_clusters
       if [[ -f "${KIND_CFG}.backup" ]]; then
         yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
-        printf "\n${LIGHT_GREEN}Old temporary configuration - cleaned.${NC}. "
+        printf "\n${LIGHT_GREEN}Old temporary configuration - cleaned.${NC}.\n"
       else
-        printf "\n${LIGHT_GREEN}No old temporary configuration${NC}. "
+        printf "\n${LIGHT_GREEN}No old temporary configuration${NC}.\n"
       fi
       for ((i=0;i<"${#clusters[@]}";i++));
         do
-          echo "${clusters[i]}"
           kind delete cluster --name "${clusters[i]}"
         done
-      printf "\n${LIGHT_GREEN}Clusters left:${NC} "
+      printf "\n${LIGHT_GREEN}Clusters left:${NC}\n"
       kind get clusters
       exit 0
       ;;
