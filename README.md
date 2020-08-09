@@ -1,6 +1,6 @@
 # deploy-kubernetes-kind
 
-Create a local one or multi-node K8s cluster preset for development with one command.
+Create and administer a local one or multi-node K8s cluster(s) preset for development with simple interactive commands.
 
 ## Demo
 
@@ -14,6 +14,12 @@ To create a local one or multi-node K8s cluster in Docker container(s) with prop
 cd local-cluster
 bash prerequisites-cmds.sh --helm_ver=2.[x].[x]             # Helm ver. is optional.
 bash create-cluster.sh --nodes=[1-99] --k8s_ver=1.[x].[x]   # Only no. of K8s nodes is mandatory.
+```
+
+To purge interactively any created cluster(s):
+
+```bash
+bash create-cluster.sh --purge
 ```
 
 ## Helper Menu
