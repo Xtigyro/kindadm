@@ -1,6 +1,6 @@
 # deploy-kubernetes-kind
 
-Create and administer local one or multi-node K8s cluster/s preset for development with simple interactive commands.
+Create and administer a local one or multi-node K8s cluster(s) preset for development with simple interactive commands.
 
 > **NOTE**: Those of you who would like to use the automation with Helm v2 - please switch to branch `helm-v2`.
 
@@ -18,7 +18,7 @@ bash prerequisites-cmds.sh --helm_ver=3.[x].[x]             # Helm ver. is optio
 bash create-cluster.sh --nodes=[1-99] --k8s_ver=1.[x].[x]   # Only no. of K8s nodes is mandatory.
 ```
 
-To purge interactively any created clusters:
+To purge interactively any created cluster(s):
 
 ```bash
 bash create-cluster.sh --purge
