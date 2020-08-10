@@ -42,6 +42,16 @@ Example:
     bash create-cluster.sh -n=2 -v=1.18.2 -hl='nodeType=devops' -ht
 ```
 
+```console
+# bash prerequisites-cmds.sh -h
+
+Usage:
+    --helm_ver,-hv      Set Helm version to be deployed.
+    --help,-h           Prints this message.
+Example:
+    bash prerequisites-cmds.sh -hv=3.2.4
+```
+
 ## Prerequisite Notes
 
 The `prerequisites-cmds.sh` can be used either like a true Shell script, or the commands which are part of it can be executed one by one. It depends on your preference.
