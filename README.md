@@ -36,7 +36,7 @@ Usage:
     --half-labelled,-hl  Set labels on half K8s nodes.
     --all-tainted,-at    Set taints on all K8s nodes. A different label can be defined.
     --half-tainted,-ht   Set taints on half K8s nodes. A different label can be defined.
-    --purge,-p           Purges interactively any existing clusters and/or temp configs.
+    --purge,-p           Purges interactively any existing clusters and temp configs.
     --help,-h            Prints this message.
 Example:
     bash create-cluster.sh -n=2 -v=1.18.2 -hl='nodeType=devops' -ht
