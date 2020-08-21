@@ -1,6 +1,6 @@
 helmDefaults:
   wait: false
-  timeout: 600
+  timeout: 900
   tillerless: true
 
 releases:
