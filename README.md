@@ -1,6 +1,6 @@
 # deploy-kubernetes-kind
 
-Create and administer a local one or multi-node K8s cluster(s) preset for development with simple interactive commands.
+Create and administer a local one or multi-node K8s cluster(s) in Docker container(s) with properly configured Helm v3, Ingress Controller, MetalLB, and Metrics Server with simple interactive commands.
 
 > **NOTE**: Those of you who would like to use the automation with Helm v2 - please switch to branch `helm-v2`.
 
@@ -10,7 +10,7 @@ Create and administer a local one or multi-node K8s cluster(s) preset for develo
 
 ## Quick Start
 
-To create a local one or multi-node K8s cluster in Docker container(s) with properly configured Helm v3, Ingress Controller, MetalLB, and Metrics Server - please run:
+To create a local one or multi-node K8s cluster - please run:
 
 ```bash
 cd local-cluster
