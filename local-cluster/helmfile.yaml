@@ -6,13 +6,17 @@ helmDefaults:
   force: true
 
 repositories:
-- name: "stable"
-  url: "https://kubernetes-charts.storage.googleapis.com/"
+- name: stable
+  url: https://kubernetes-charts.storage.googleapis.com
+- name: ingress-nginx
+  url: https://kubernetes.github.io/ingress-nginx
+- name: bitnami
+  url: https://charts.bitnami.com/bitnami
 
 releases:
   - name: ingress
     namespace: ingress
-    chart: "stable/nginx-ingress"
+    chart: ingress-nginx/ingress-nginx
     installed: true
     values:
       - controller:
@@ -23,7 +27,7 @@ releases:
 
   - name: metallb
     namespace: metallb-system
-    chart: "stable/metallb"
+    chart: bitnami/metallb
     installed: true
     values:
       - configInline:
@@ -35,7 +39,7 @@ releases:
 
   - name: metrics-server
     namespace: kube-system
-    chart: "stable/metrics-server"
+    chart: bitnami/metrics-server
     installed: true
     values:
       - args:
