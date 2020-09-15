@@ -83,7 +83,7 @@ echo -e "\n" && \
 helmfile -v
 
 # Install kINd
-KIND_VERSION=v0.8.1 && \
+KIND_VERSION=v0.9.0 && \
 echo -e "\nDownloading kINd binary..." && \
 curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/"$KIND_VERSION"/kind-$(uname)-amd64 && \
 chmod +x ./kind && \
