@@ -52,6 +52,19 @@ Example:
     bash prerequisites-cmds.sh -hv=3.2.4
 ```
 
+### Access Kubernetes Dashboard
+
+To access Dashboard from your local workstation, you must create a secure channel to your Kubernetes cluster. Run the following command:
+
+```bash
+kubectl proxy
+```
+
+Now you can access the K8s Dashboard at:
+
+[`http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/`](
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/).
+
 ## Prerequisite Notes
 
 The `prerequisites-cmds.sh` can be used either like a true Shell script, or the commands which are part of it can be executed one by one. It depends on your preference.
@@ -64,6 +77,8 @@ The `prerequisites-cmds.sh` can be used either like a true Shell script, or the 
 4. Helm plugins: `helm-diff`.
 5. `helmfile` binary.
 6. `kind` binary.
+
+It can be run multiple times and be used even just to update to the latest stable versions of `kubectl`, `helm-diff`, and `helmfile`.
 
 ## Credits
 
