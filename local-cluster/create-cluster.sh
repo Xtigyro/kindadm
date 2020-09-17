@@ -4,7 +4,8 @@ set -e
 LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
 NC='\033[0m'   # No Color
-KIND_CFG="./kind-cfg.yaml"   # base config file
+KIND_CFG="$(<./kind-base-config.yaml)"   # base config file
+KIND_IN_USE_CFG="./kind-in-use-config.yaml"
 K8S_CLUSTERS="$(kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
 
 if [[ -z "$1" ]]; then
@@ -81,8 +82,8 @@ while [ $# -gt 0 ]; do
       ;;
     --purge|-p)
       purge_clusters
-      if [[ -f "${KIND_CFG}.backup" ]]; then
-        yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
+      if [[ -f "${KIND_IN_USE_CFG}" ]]; then
+        rm -rf "${KIND_IN_USE_CFG}"
         printf "\n${LIGHT_GREEN}Old temporary configuration - cleaned.${NC}.\n"
       else
         printf "\n${LIGHT_GREEN}No old temporary configuration${NC}.\n"
@@ -115,24 +116,26 @@ else
   KIND_WRKR_CFG=$'\n  - role: worker\n    image: kindest/node:v'"${K8S_VER}"$'\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
 fi
 
-# Adjust the kINd config
-cp "${KIND_CFG}"{,.backup}
+# Adjust KinD config
+## Calculate no. of nodes
 if [ "${NO_NODES}" == 1 ]; then
   NO_NODES_CREATE="$((${NO_NODES} - 1))"
 else
   NO_NODES_CREATE="${NO_NODES}"
 fi
-echo -e "${KIND_CTRL_CFG}" >> "${KIND_CFG}"
+## Create new KinD config
+KIND_CFG="${KIND_CFG}${KIND_CTRL_CFG}"
 for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
   do
-    echo -e "${KIND_WRKR_CFG}" >> "${KIND_CFG}"
+    KIND_CFG="${KIND_CFG}${KIND_WRKR_CFG}"
   done
+echo -e "${KIND_CFG}" > "${KIND_IN_USE_CFG}"
 
-# Create kINd cluster
-kind create cluster --config "${KIND_CFG}" --name kind-"${NO_NODES}"
+# Create KinD cluster
+kind create cluster --config "${KIND_IN_USE_CFG}" --name kind-"${NO_NODES}"
 
-# Revert the kINd config
-yes | mv "${KIND_CFG}.backup" "${KIND_CFG}"
+# Clean used KinD config
+rm -rf "${KIND_IN_USE_CFG}"
 
 # Deploy desired svc-s
 helmfile -f ./helmfile.yaml apply > /dev/null
@@ -150,7 +153,7 @@ if [[ ! -z "$COEFFICIENT_LABEL" ]]; then
     done
 fi
 
-# Taint the nodes with "NoExecute"
+# Taint nodes with "NoExecute"
 if [[ ! -z "$COEFFICIENT_TAINT" ]]; then
   NO_NODES_TAINTED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_TAINT" | awk '{printf("%d\n",$1 - 0.5)}')"
   for ((i=1;i<="$NO_NODES_TAINTED";i++));
