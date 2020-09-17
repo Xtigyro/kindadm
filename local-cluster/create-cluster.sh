@@ -129,6 +129,9 @@ kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
 # Deploy desired svc-s
 helmfile -f ./helmfile.yaml apply > /dev/null
 
+# Deploy Kubernetes Dashboard Admin ClusterRoleBinding
+kubectl apply -f ./k8s-dashboard-rolebinding.yaml
+
 # Get node names
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)
 IFS=$'\n' CLUSTER_WRKS=(${CLUSTER_WRKS})
