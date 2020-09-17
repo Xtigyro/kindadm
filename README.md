@@ -69,6 +69,6 @@ The `prerequisites-cmds.sh` can be used either like a true Shell script, or the 
 
 My name is [Miroslav Hadzhiev](https://www.linkedin.com/in/mehadzhiev/) - a DevOps Engineer located in Sofia, Bulgaria. I'm glad that you liked my automation.
 
-## Licence
+## License
 
 GNU General Public License v2.0
