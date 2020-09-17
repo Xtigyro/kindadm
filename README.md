@@ -1,6 +1,6 @@
 # deploy-kubernetes-kind
 
-Create and administer a local one or multi-node K8s cluster(s) in Docker container(s) with properly configured Helm v3, Ingress Controller, MetalLB, Metrics Server, and Kubernetes Dashboard with simple interactive commands.
+Create and administer a local one or multi-node Kubernetes cluster(s) in Docker container(s) with properly configured Helm v3, Ingress Controller, MetalLB, Metrics Server, and Kubernetes Dashboard with simple interactive commands.
 
 > **NOTE**: Those of you who would like to use the automation with Helm v2 - please switch to branch `helm-v2`.
 
@@ -10,7 +10,7 @@ Create and administer a local one or multi-node K8s cluster(s) in Docker contain
 
 ## Quick Start
 
-To create a local one or multi-node K8s cluster - please run:
+To create a local one or multi-node Kubernetes (K8s) cluster - please run:
 
 ```bash
 cd local-cluster
@@ -60,7 +60,7 @@ To access Dashboard from your local workstation, you must create a secure channe
 kubectl proxy
 ```
 
-Now you can access the K8s Dashboard at:
+Now you can access the Kubernetes Dashboard at:
 
 [`http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:https/proxy/`](
 http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:https/proxy/).
