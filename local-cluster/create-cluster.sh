@@ -5,7 +5,6 @@ LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
 NC='\033[0m'   # No Color
 KIND_CFG="$(<./kind-base-config.yaml)"   # base config file
-KIND_IN_USE_CFG="./kind-in-use-config.yaml"
 K8S_CLUSTERS="$(kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
 
 if [[ -z "$1" ]]; then
@@ -82,12 +81,6 @@ while [ $# -gt 0 ]; do
       ;;
     --purge|-p)
       purge_clusters
-      if [[ -f "${KIND_IN_USE_CFG}" ]]; then
-        rm -rf "${KIND_IN_USE_CFG}"
-        printf "\n${LIGHT_GREEN}Old temporary configuration - cleaned.${NC}.\n"
-      else
-        printf "\n${LIGHT_GREEN}No old temporary configuration${NC}.\n"
-      fi
       for ((i=0;i<"${#clusters[@]}";i++));
         do
           kind delete cluster --name "${clusters[i]}"
@@ -129,13 +122,9 @@ for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
   do
     KIND_CFG="${KIND_CFG}${KIND_WRKR_CFG}"
   done
-echo -e "${KIND_CFG}" > "${KIND_IN_USE_CFG}"
 
 # Create KinD cluster
-kind create cluster --config "${KIND_IN_USE_CFG}" --name kind-"${NO_NODES}"
-
-# Clean used KinD config
-rm -rf "${KIND_IN_USE_CFG}"
+kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
 
 # Adjust Tiller K8s permissions
 kubectl create serviceaccount --namespace kube-system tiller
@@ -146,6 +135,9 @@ helm init --service-account tiller
 
 # Deploy desired svc-s
 helmfile -f ./helmfile.yaml apply > /dev/null
+
+# Deploy Kubernetes Dashboard Admin ClusterRoleBinding
+kubectl apply -f ./k8s-dashboard-rolebinding.yaml
 
 # Get node names
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)

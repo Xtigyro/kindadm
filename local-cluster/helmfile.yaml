@@ -4,12 +4,14 @@ helmDefaults:
   tillerless: true
 
 repositories:
-- name: stable
-  url: https://kubernetes-charts.storage.googleapis.com
-- name: ingress-nginx
-  url: https://kubernetes.github.io/ingress-nginx
-- name: bitnami
-  url: https://charts.bitnami.com/bitnami
+  - name: stable
+    url: https://kubernetes-charts.storage.googleapis.com
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+  - name: kubernetes-dashboard
+    url: https://kubernetes.github.io/dashboard
 
 releases:
   - name: ingress
@@ -47,3 +49,19 @@ releases:
         - --metric-resolution=60s
         - --kubelet-insecure-tls
         - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+
+  - name: kubernetes-dashboard
+    namespace: kube-system
+    chart: kubernetes-dashboard/kubernetes-dashboard
+    installed: true
+    needs:
+      - kube-system/metrics-server
+    values:
+      - rbac:
+          create: true
+      - metricsScraper:
+          enabled: true
+      - fullnameOverride: kubernetes-dashboard
+      - extraArgs:
+        - --enable-skip-login
+        - --enable-insecure-login
