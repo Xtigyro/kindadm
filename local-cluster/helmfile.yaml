@@ -52,10 +52,9 @@ releases:
 
   - name: kubernetes-dashboard
     namespace: kube-system
+    tillerNamespace: kube-system
     chart: kubernetes-dashboard/kubernetes-dashboard
     installed: true
-    needs:
-      - kube-system/metrics-server
     values:
       - rbac:
           create: true
