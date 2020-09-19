@@ -1,0 +1,6 @@
+{{ readFile "../../../common.yaml" }}
+
+releases:
+  - name: weave-scope
+    namespace: weave
+    <<: *stable

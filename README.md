@@ -1,4 +1,4 @@
-# deploy-kubernetes-kind
+# kindadm
 
 Create and administer a local one or multi-node Kubernetes cluster(s) in Docker container(s) with properly configured Helm v3, Ingress Controller, MetalLB, Metrics Server, and Kubernetes Dashboard with simple interactive commands.
 
