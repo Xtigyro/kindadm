@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
 NC='\033[0m'   # No Color
 KIND_CFG="$(<./templates/kind-base-config.yaml)"   # base config file
 K8S_CLUSTERS="$(kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
+SUPPORTED_OPT_APPS="$(ls -d helmfiles/apps/optional/*/ | cut -f4 -d'/')"
 
 if [[ -z "$1" ]]; then
   printf "\nAt least no. of K8s nodes must be set. \nUse ${LIGHT_GREEN}\"bash $0 --help\"${NC} for details.\n"
@@ -25,6 +26,15 @@ function contains_string {
   return "$result"
 }
 
+function not_contain_strings_from_strings {
+  for str in "$SUPPORTED_OPT_APPS"; do
+    if ! [[ "$OPT_APPS" =~ (^|,)"$str"(,|$) ]]; then
+      printf "\nSupported optional apps (comma-separated): ${LIGHT_GREEN}"$SUPPORTED_OPT_APPS"${NC}.\n"
+      exit 2
+    fi
+  done
+}
+
 function purge_clusters {
   select choice in "ALL_CLUSTERS" "PER_CLUSTER"; do
   case "$choice" in
@@ -36,12 +46,12 @@ function purge_clusters {
     read -p "[ ${K8S_CLUSTERS} ]: " K8S_CLUSTER;
     if ! `contains_string "${K8S_CLUSTERS}" "$K8S_CLUSTER"`; then
       echo "Invalid cluster name."
-      exit 2
+      exit 3
     fi
     declare -g clusters=("$K8S_CLUSTER");
     break;;
     *) echo "'ALL_CLUSTERS' or 'PER_CLUSTER' must be chosen.";
-    exit 3;
+    exit 4;
     break;;
   esac
   done
@@ -52,7 +62,7 @@ while [ $# -gt 0 ]; do
     --nodes=*|-n=*)
       if [[ "$1" != *=[1-9] ]] && [[ "$1" != *=[1-9][1-9] ]]; then
         printf "\nNo. of K8s nodes must be: ${LIGHT_GREEN}1-99${NC}.\n"
-        exit 4
+        exit 5
       fi
       NO_NODES="${1#*=}"
       ;;
@@ -72,19 +82,26 @@ while [ $# -gt 0 ]; do
       if [[ "$1" == *=* ]]; then NODE_TAINT_LABEL="${1#*=}"; fi
       COEFFICIENT_TAINT=0.5
       ;;
+    --opt-apps=*|-oa=*)
+      if [[ "$1" == *=all ]]; then
+        OPT_APPS=true
+      else
+        OPT_APPS="${1#*=}"
+        not_contain_strings_from_strings
+      fi
+      ;;
     --k8s_ver=*|-v=*)
       if [[ "$1" != *=1.*.* ]]; then
         printf "\nIncompatible K8s node ver.\nCorrect syntax/version: ${LIGHT_GREEN}1.[x].[x]${NC}\n"
-        exit 5
+        exit 6
       fi
       K8S_VER="${1#*=}"
       ;;
     --purge|-p)
       purge_clusters
-      for ((i=0;i<"${#clusters[@]}";i++));
-        do
+      for ((i=0;i<"${#clusters[@]}";i++)); do
           kind delete cluster --name "${clusters[i]}"
-        done
+      done
       printf "\n${LIGHT_GREEN}Clusters left:${NC}\n"
       kind get clusters
       exit 0
@@ -95,7 +112,7 @@ while [ $# -gt 0 ]; do
       ;;
     *)
       >&2 printf "\nError: ${LIGHT_GREEN}Invalid argument${NC}\n"
-      exit 6
+      exit 7
       ;;
   esac
   shift
