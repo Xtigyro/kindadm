@@ -1,0 +1,12 @@
+rbac:
+  create: true
+metricsScraper:
+  enabled: true
+fullnameOverride: kubernetes-dashboard
+extraArgs:
+  - --enable-skip-login
+  - --enable-insecure-login
+settings:
+  itemsPerPage: 40
+  logsAutoRefreshTimeInterval: 5
+  resourceAutoRefreshTimeInterval: 5

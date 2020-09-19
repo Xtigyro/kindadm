@@ -4,7 +4,7 @@ set -e
 LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
 NC='\033[0m'   # No Color
-KIND_CFG="$(<./kind-base-config.yaml)"   # base config file
+KIND_CFG="$(<./templates/kind-base-config.yaml)"   # base config file
 K8S_CLUSTERS="$(kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
 
 if [[ -z "$1" ]]; then
@@ -126,11 +126,14 @@ for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
 # Create KinD cluster
 kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
 
-# Deploy desired svc-s
-helmfile -f ./helmfile.yaml apply > /dev/null
+# Deploy default apps
+helmfile -f ./helmfiles/apps/default/helmfile.yaml apply > /dev/null
+
+# Deploy optional apps
+helmfile -f ./helmfiles/apps/optional/helmfile.yaml apply > /dev/null
 
 # Deploy Kubernetes Dashboard Admin ClusterRoleBinding
-kubectl apply -f ./k8s-dashboard-rolebinding.yaml
+kubectl apply -f ./templates/k8s-dashboard-rolebinding.yaml
 
 # Get node names
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)

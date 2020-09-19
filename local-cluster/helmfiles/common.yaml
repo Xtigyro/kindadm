@@ -1,0 +1,17 @@
+helmDefaults:
+  createNamespace: true
+  cleanupOnFail: true
+  timeout: 900
+  force: true
+
+templates:
+  common: &common
+    missingFileHandler: Warn
+    values:
+      - ./{{ .Release.Name }}.yaml.gotmpl
+  stable: &stable
+    <<: *common
+    chart: stable/{{ .Release.Name }}
+  bitnami: &bitnami
+    <<: *common
+    chart: bitnami/{{ .Release.Name }}
