@@ -65,3 +65,7 @@ releases:
       - extraArgs:
         - --enable-skip-login
         - --enable-insecure-login
+      - settings:
+          itemsPerPage: 20
+          logsAutoRefreshTimeInterval: 5
+          resourceAutoRefreshTimeInterval: 5
