@@ -6,10 +6,6 @@ helmDefaults:
   force: true
 
 repositories:
-  - name: stable
-    url: https://kubernetes-charts.storage.googleapis.com
-  - name: ingress-nginx
-    url: https://kubernetes.github.io/ingress-nginx
   - name: bitnami
     url: https://charts.bitnami.com/bitnami
   - name: kubernetes-dashboard
@@ -18,14 +14,17 @@ repositories:
 releases:
   - name: ingress
     namespace: ingress
-    chart: ingress-nginx/ingress-nginx
+    chart: bitnami/nginx-ingress-controller
     installed: true
     values:
-      - controller:
-          extraArgs:
-            enable-ssl-passthrough: ""
-          hostNetwork: true
-          kind: DaemonSet
+      - extraArgs:
+          enable-ssl-passthrough: ""
+      - hostNetwork: true
+      - kind: DaemonSet
+      - daemonset:
+          useHostPort: true
+      - metrics:
+          enabled: true
 
   - name: metallb
     namespace: metallb-system
@@ -44,10 +43,10 @@ releases:
     chart: bitnami/metrics-server
     installed: true
     values:
-      - args:
-        - --metric-resolution=60s
-        - --kubelet-insecure-tls
-        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+      - extraArgs:
+          metric-resolution: 60s
+          kubelet-insecure-tls: true
+          kubelet-preferred-address-types: InternalIP
 
   - name: kubernetes-dashboard
     namespace: kube-system
