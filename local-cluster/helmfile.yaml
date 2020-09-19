@@ -47,7 +47,9 @@ releases:
       - extraArgs:
           metric-resolution: 60s
           kubelet-insecure-tls: true
-          kubelet-preferred-address-types: InternalIP
+          kubelet-preferred-address-types: InternalIP,ExternalIP,Hostname
+      - apiService:
+          create: true
 
   - name: kubernetes-dashboard
     namespace: kube-system
