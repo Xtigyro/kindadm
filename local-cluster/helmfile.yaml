@@ -66,6 +66,6 @@ releases:
         - --enable-skip-login
         - --enable-insecure-login
       - settings:
-          itemsPerPage: 20
+          itemsPerPage: 40
           logsAutoRefreshTimeInterval: 5
           resourceAutoRefreshTimeInterval: 5
