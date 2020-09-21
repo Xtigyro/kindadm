@@ -54,6 +54,10 @@ Example:
     bash prerequisites-cmds.sh -hv=3.3.1
 ```
 
+### Supported Optional Apps
+
+1. [Weave Scope](https://www.weave.works/oss/scope/).
+
 ### Access Kubernetes Dashboard
 
 To access Dashboard from your local workstation, you must create a secure channel to your Kubernetes cluster. Run the following command:
