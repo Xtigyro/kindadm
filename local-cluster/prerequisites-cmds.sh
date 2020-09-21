@@ -17,7 +17,7 @@ while [ $# -gt 0 ]; do
       HELM_VER="${1#*=}"
       ;;
     --help|-h)
-      printf "\nUsage:\n    ${LIGHT_GREEN}--helm_ver,-hv${NC}      Set Helm version to be deployed.\n    ${LIGHT_GREEN}--help,-h${NC}           Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -hv=3.2.4${NC}\n" # Flag argument
+      printf "\nUsage:\n    ${LIGHT_GREEN}--helm_ver,-hv${NC}      Set Helm version to be deployed.\n    ${LIGHT_GREEN}--help,-h${NC}           Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -hv=3.3.1${NC}\n" # Flag argument
       exit 0
       ;;
     *)

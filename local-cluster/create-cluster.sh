@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
 LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
@@ -7,7 +7,6 @@ NC='\033[0m'   # No Color
 KIND_CFG="$(<./templates/kind-base-config.yaml)"   # base config file
 K8S_CLUSTERS="$(kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
 SUPPORTED_OPT_APPS="$(ls -d helmfiles/apps/optional/*/ | cut -f4 -d'/')"
-read -r -a OPT_APPS_INFO_MSG <<< 'Supported' 'optional' 'apps' '(comma-separated)'
 
 if [[ -z "$1" ]]; then
   printf "\nAt least no. of K8s nodes must be set. \nUse ${LIGHT_GREEN}\"bash $0 --help\"${NC} for details.\n"
@@ -27,15 +26,19 @@ function contains_string {
   return "$result"
 }
 
-function not_contain_strings_from_strings {
+function contain_strings_from_strings {
   local list_a="$1"
   local list_b="$2"
   for str in "$list_a"; do
-    if ! [[ "$list_b" =~ (^|,)"$str"(,|$) ]]; then
-      printf "\n"${info_msg[@]}": ${LIGHT_GREEN}"$list_a"${NC}.\n"
-      exit 2
+    if [[ "$list_b" =~ (^|,)"$str"(,|$) ]]; then
+      # yes, list includes item
+      result=0
+    else
+      result=1
+      break
     fi
   done
+  return "$result"
 }
 
 function purge_clusters {
@@ -90,13 +93,16 @@ while [ $# -gt 0 ]; do
         OPT_APPS=true
       else
         OPT_APPS="${1#*=}"
-        `not_contain_strings_from_strings "$SUPPORTED_OPT_APPS" "$OPT_APPS"`
+        if ! `contain_strings_from_strings "$SUPPORTED_OPT_APPS" "$OPT_APPS"`; then
+          printf "\nSupported optional apps (comma-separated): ${LIGHT_GREEN}"$SUPPORTED_OPT_APPS"${NC}.\n"
+          exit 6
+        fi
       fi
       ;;
     --k8s_ver=*|-v=*)
       if [[ "$1" != *=1.*.* ]]; then
         printf "\nIncompatible K8s node ver.\nCorrect syntax/version: ${LIGHT_GREEN}1.[x].[x]${NC}\n"
-        exit 6
+        exit 7
       fi
       K8S_VER="${1#*=}"
       ;;
@@ -109,13 +115,28 @@ while [ $# -gt 0 ]; do
       kind get clusters
       exit 0
       ;;
+    --list-oa|-loa)
+        printf "\nList of supported optional apps:\
+        \n    ${LIGHT_GREEN}$SUPPORTED_OPT_APPS${NC}\n"
+      exit 0
+      ;;
     --help|-h)
-      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\n    ${LIGHT_GREEN}--nodes,-n${NC}           Set number of K8s nodes to be created.\n    ${LIGHT_GREEN}--all-labelled,-al${NC}   Set labels on all K8s nodes.\n    ${LIGHT_GREEN}--half-labelled,-hl${NC}  Set labels on half K8s nodes.\n    ${LIGHT_GREEN}--all-tainted,-at${NC}    Set taints on all K8s nodes. A different label can be defined.\n    ${LIGHT_GREEN}--half-tainted,-ht${NC}   Set taints on half K8s nodes. A different label can be defined.\n    ${LIGHT_GREEN}--purge,-p${NC}           Purges interactively any existing clusters and temp configs.\n    ${LIGHT_GREEN}--help,-h${NC}            Prints this message.\nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.18.2 -hl='nodeType=devops' -ht ${NC}\n" # Flag argument
+      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\
+        \n    ${LIGHT_GREEN}--nodes,-n${NC}           Set number of K8s nodes to be created.\
+        \n    ${LIGHT_GREEN}--all-labelled,-al${NC}   Set labels on all K8s nodes.\
+        \n    ${LIGHT_GREEN}--half-labelled,-hl${NC}  Set labels on half K8s nodes.\
+        \n    ${LIGHT_GREEN}--all-tainted,-at${NC}    Set taints on all K8s nodes. A different label can be defined.\
+        \n    ${LIGHT_GREEN}--half-tainted,-ht${NC}   Set taints on half K8s nodes. A different label can be defined.\
+        \n    ${LIGHT_GREEN}--purge,-p${NC}           Purges interactively any existing clusters and temp configs.\
+        \n    ${LIGHT_GREEN}--opt-apps,-oa${NC}       Deploy supported optional app(s).\
+        \n    ${LIGHT_GREEN}--list-oa,-loa${NC}       List supported optional app(s).\
+        \n    ${LIGHT_GREEN}--help,-h${NC}            Prints this message.\
+        \nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope${NC}\n" # Flag argument
       exit 0
       ;;
     *)
       >&2 printf "\nError: ${LIGHT_GREEN}Invalid argument${NC}\n"
-      exit 7
+      exit 8
       ;;
   esac
   shift
