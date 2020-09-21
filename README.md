@@ -56,7 +56,7 @@ Example:
 
 ### Supported Optional Apps
 
-1. [Weave Scope](https://www.weave.works/oss/scope/).
+- [Weave Scope](https://www.weave.works/oss/scope/).
 
 ### Access Kubernetes Dashboard
 
