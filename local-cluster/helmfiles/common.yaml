@@ -1,6 +1,5 @@
 helmDefaults:
   atomic: true
-  # wait: false
   timeout: 900
   tillerless: true
 
