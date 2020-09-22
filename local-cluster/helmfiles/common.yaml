@@ -1,0 +1,16 @@
+helmDefaults:
+  atomic: true
+  timeout: 900
+  tillerless: true
+
+templates:
+  common: &common
+    missingFileHandler: Warn
+    values:
+      - ./{{ .Release.Name }}.yaml.gotmpl
+  stable: &stable
+    <<: *common
+    chart: stable/{{ .Release.Name }}
+  bitnami: &bitnami
+    <<: *common
+    chart: bitnami/{{ .Release.Name }}
