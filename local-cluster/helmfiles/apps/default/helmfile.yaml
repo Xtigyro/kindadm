@@ -1,0 +1,8 @@
+repositories:
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+  - name: kubernetes-dashboard
+    url: https://kubernetes.github.io/dashboard
+
+helmfiles:
+  - ./*/helmfile.yaml

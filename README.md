@@ -1,4 +1,4 @@
-# deploy-kubernetes-kind
+# kindadm
 
 Create and administer a local one or multi-node Kubernetes cluster(s) in Docker container(s) with properly configured Helm v2 (optionally `tillerless`), Ingress Controller, MetalLB, Metrics Server, and Kubernetes Dashboard with simple interactive commands.
 
@@ -33,9 +33,11 @@ Usage:
     --all-tainted,-at    Set taints on all K8s nodes. A different label can be defined.
     --half-tainted,-ht   Set taints on half K8s nodes. A different label can be defined.
     --purge,-p           Purges interactively any existing clusters and temp configs.
+    --opt-apps,-oa       Deploy supported optional app(s).
+    --list-oa,-loa       List supported optional app(s).
     --help,-h            Prints this message.
 Example:
-    bash create-cluster.sh -n=2 -v=1.18.2 -hl='nodeType=devops' -ht
+    bash create-cluster.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope
 ```
 
 ```console
@@ -45,8 +47,12 @@ Usage:
     --helm_ver,-hv      Set Helm version to be deployed.
     --help,-h           Prints this message.
 Example:
-    bash prerequisites-cmds.sh -hv=2.16.8
+    bash prerequisites-cmds.sh -hv=2.16.12
 ```
+
+### Supported Optional Apps
+
+- [Weave Scope](https://www.weave.works/oss/scope/).
 
 ### Access Kubernetes Dashboard
 
