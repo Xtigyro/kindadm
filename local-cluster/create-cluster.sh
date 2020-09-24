@@ -165,11 +165,11 @@ for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
     KIND_CFG="${KIND_CFG}${KIND_WRKR_CFG}"
   done
 
-# # Create KinD cluster
-# kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
+# Create KinD cluster
+kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
 
-# # Deploy default apps
-# helmfile -f ./helmfiles/apps/default/helmfile.yaml apply > /dev/null
+# Deploy default apps
+helmfile -f ./helmfiles/apps/default/helmfile.yaml apply > /dev/null
 
 # Deploy conditionally optional apps
 if [[ ! -z "$OPT_APPS" ]]; then
