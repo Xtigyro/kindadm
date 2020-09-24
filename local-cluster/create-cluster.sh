@@ -26,7 +26,7 @@ function contains_string {
   return "$result"
 }
 
-function contain_strings_from_strings {
+function contains_strings_from_strings {
   local list_a="$1"
   local list_b="$2"
   for str in "$list_a"; do
@@ -90,10 +90,10 @@ while [ $# -gt 0 ]; do
       ;;
     --opt-apps=*|-oa=*)
       if [[ "$1" == *=all ]]; then
-        OPT_APPS=true
+        OPT_APPS=all
       else
         OPT_APPS="${1#*=}"
-        if ! `contain_strings_from_strings "$SUPPORTED_OPT_APPS" "$OPT_APPS"`; then
+        if ! `contains_strings_from_strings "$SUPPORTED_OPT_APPS" "$OPT_APPS"`; then
           printf "\nSupported optional apps (comma-separated): ${LIGHT_GREEN}"$SUPPORTED_OPT_APPS"${NC}.\n"
           exit 6
         fi
@@ -121,7 +121,8 @@ while [ $# -gt 0 ]; do
       exit 0
       ;;
     --help|-h)
-      printf "\nUsage:\n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\
+      printf "\nUsage:\
+        \n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\
         \n    ${LIGHT_GREEN}--nodes,-n${NC}           Set number of K8s nodes to be created.\
         \n    ${LIGHT_GREEN}--all-labelled,-al${NC}   Set labels on all K8s nodes.\
         \n    ${LIGHT_GREEN}--half-labelled,-hl${NC}  Set labels on half K8s nodes.\
@@ -131,7 +132,7 @@ while [ $# -gt 0 ]; do
         \n    ${LIGHT_GREEN}--opt-apps,-oa${NC}       Deploy supported optional app(s).\
         \n    ${LIGHT_GREEN}--list-oa,-loa${NC}       List supported optional app(s).\
         \n    ${LIGHT_GREEN}--help,-h${NC}            Prints this message.\
-        \nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope${NC}\n" # Flag argument
+        \nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope${NC}\n"   # Flag argument
       exit 0
       ;;
     *)
@@ -170,11 +171,16 @@ kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
 # Deploy default apps
 helmfile -f ./helmfiles/apps/default/helmfile.yaml apply > /dev/null
 
-# Deploy optional apps
-helmfile -f ./helmfiles/apps/optional/helmfile.yaml apply > /dev/null
-
-# Deploy Kubernetes Dashboard Admin ClusterRoleBinding
-kubectl apply -f ./templates/k8s-dashboard-rolebinding.yaml
+# Deploy conditionally optional apps
+if [[ ! -z "$OPT_APPS" ]]; then
+  if [[ "$OPT_APPS" == "all" ]]; then
+    helmfile -f ./helmfiles/apps/optional/helmfile.yaml apply > /dev/null
+  else
+    for app in "$OPT_APPS"; do
+      helmfile -f ./helmfiles/apps/optional/"$app"/helmfile.yaml apply > /dev/null
+    done
+  fi
+fi
 
 # Get node names
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)
