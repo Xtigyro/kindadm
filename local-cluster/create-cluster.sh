@@ -7,11 +7,7 @@ NC='\033[0m'   # No Color
 KIND_CFG="$(<./templates/kind-base-config.yaml)"   # base config file
 K8S_CLUSTERS="$(kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
 SUPPORTED_OPT_APPS="$(ls -d helmfiles/apps/optional/*/ | cut -f4 -d'/')"
-
-if [[ -z "$1" ]]; then
-  printf "\nAt least no. of K8s nodes must be set. \nUse ${LIGHT_GREEN}\"bash $0 --help\"${NC} for details.\n"
-  exit 1
-fi
+NO_NODES='1'
 
 # predefined functions
 function contains_string {
