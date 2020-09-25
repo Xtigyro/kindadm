@@ -15,7 +15,7 @@ To create a local one or multi-node Kubernetes (K8s) cluster - please run:
 ```bash
 cd local-cluster
 bash prerequisites-cmds.sh --helm_ver=3.[x].[x]             # Helm ver. is optional.
-bash create-cluster.sh --nodes=[1-99] --k8s_ver=1.[x].[x]   # Only no. of K8s nodes is mandatory.
+bash create-cluster.sh --nodes=[1-99] --k8s_ver=1.[x].[x]   # No. of nodes and K8s ver. are optional.
 ```
 
 To purge interactively any created cluster(s):
