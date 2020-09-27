@@ -28,18 +28,19 @@ bash create-cluster.sh --purge
 
 ```console
 Usage:
-    --k8s_ver,-v         Set K8s version to be deployed.
-    --nodes,-n           Set number of K8s nodes to be created.
-    --all-labelled,-al   Set labels on all K8s nodes.
-    --half-labelled,-hl  Set labels on half K8s nodes.
-    --all-tainted,-at    Set taints on all K8s nodes. A different label can be defined.
-    --half-tainted,-ht   Set taints on half K8s nodes. A different label can be defined.
-    --purge,-p           Purges interactively any existing clusters and temp configs.
-    --opt-apps,-oa       Deploy supported optional app(s).
-    --list-oa,-loa       List supported optional app(s).
-    --help,-h            Prints this message.
+    --all-labelled,-al      Set labels on all K8s nodes.
+    --all-tainted,-at       Set taints on all K8s nodes. A different label can be defined.
+    --create-registry,-cr   Create local container registry for K8s cluster.
+    --half-labelled,-hl     Set labels on half K8s nodes.
+    --half-tainted,-ht      Set taints on half K8s nodes. A different label can be defined.
+    --k8s_ver,-v            Set K8s version to be deployed.
+    --list-oa,-loa          List supported optional app(s).
+    --nodes,-n              Set number of K8s nodes to be created.
+    --opt-apps,-oa          Deploy supported optional app(s).
+    --purge,-p              Purges interactively any existing clusters and temp configs.
+    --help,-h               Prints this message.
 Example:
-    bash create-cluster.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope
+    bash create-cluster.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr
 ```
 
 ```console
