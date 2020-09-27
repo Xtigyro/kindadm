@@ -59,6 +59,16 @@ function purge_clusters {
   done
 }
 
+function create_reg {
+  # create registry container unless it already exists
+  running="$(docker inspect -f '{{.State.Running}}' "${REG_NAME}" 2>/dev/null || true)"
+  if [ "${running}" != 'true' ]; then
+    docker run \
+      -d --restart=always -p "${REG_PORT}:5000" --name "${REG_NAME}" \
+      registry:2
+  fi
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
     --nodes=*|-n=*)
@@ -116,6 +126,12 @@ while [ $# -gt 0 ]; do
         \n    ${LIGHT_GREEN}$SUPPORTED_OPT_APPS${NC}\n"
       exit 0
       ;;
+    --create-registry|-cr)
+        REG_NAME='kind-registry'
+        REG_PORT='5000'
+        REG_CFG="$(<./templates/registry/kind-reg-cfg-patches.yaml)"   # Local Registry KinD patches
+        create_reg
+      ;;
     --help|-h)
       printf "\nUsage:\
         \n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\
@@ -154,8 +170,14 @@ if [ "${NO_NODES}" == 1 ]; then
 else
   NO_NODES_CREATE="${NO_NODES}"
 fi
+
 ## Create new KinD config
+if [[ ! -z "$REG_NAME" ]]; then
+  KIND_CFG="${KIND_CFG}${REG_CFG}"
+fi
+
 KIND_CFG="${KIND_CFG}${KIND_CTRL_CFG}"
+
 for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
   do
     KIND_CFG="${KIND_CFG}${KIND_WRKR_CFG}"
@@ -163,6 +185,10 @@ for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
 
 # Create KinD cluster
 kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
+
+if [[ ! -z "$REG_NAME" ]]; then
+  kubectl apply -f templates/registry/kind-reg-configmap.yaml
+fi
 
 # Deploy default apps
 helmfile -f ./helmfiles/apps/default/helmfile.yaml apply > /dev/null
