@@ -8,6 +8,7 @@ KIND_CFG="$(<./templates/kind-base-config.yaml)"   # base config file
 K8S_CLUSTERS="$(kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
 SUPPORTED_OPT_APPS="$(ls -d helmfiles/apps/optional/*/ | cut -f4 -d'/')"
 NO_NODES='1'
+REG_NAME='kind-registry'
 
 # predefined functions
 function contains_string {
@@ -59,6 +60,37 @@ function purge_clusters {
   done
 }
 
+function create_reg {
+  # create registry container
+  running="$(docker inspect -f '{{.State.Running}}' "${REG_NAME}" 2>/dev/null || true)"
+  if [ "${running}" != 'true' ]; then
+    docker run \
+      -d --restart=always -p "${REG_PORT}:5000" --name "${REG_NAME}" \
+      registry:2
+  fi
+}
+
+function rm_reg {
+  # remove registry container
+  running="$(docker inspect -f '{{.State.Running}}' "${REG_NAME}" 2>/dev/null || true)"
+  if [ "${running}" == 'true' ]; then
+    docker rm -f "${REG_NAME}"
+  fi
+}
+
+function conn_to_kind_netw {
+  CONTAINERS=$(docker network inspect kind -f "{{range .Containers}}{{.Name}} {{end}}")
+  NEEDS_CONNECT="true"
+  for c in $CONTAINERS; do
+    if [ "$c" = "${REG_NAME}" ]; then
+      NEEDS_CONNECT="false"
+    fi
+  done
+  if [ "${NEEDS_CONNECT}" = "true" ]; then
+    docker network connect kind "${REG_NAME}" || true
+  fi
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
     --nodes=*|-n=*)
@@ -107,6 +139,7 @@ while [ $# -gt 0 ]; do
       for ((i=0;i<"${#clusters[@]}";i++)); do
           kind delete cluster --name "${clusters[i]}"
       done
+      rm_reg
       printf "\n${LIGHT_GREEN}Clusters left:${NC}\n"
       kind get clusters
       exit 0
@@ -116,19 +149,25 @@ while [ $# -gt 0 ]; do
         \n    ${LIGHT_GREEN}$SUPPORTED_OPT_APPS${NC}\n"
       exit 0
       ;;
+    --create-registry|-cr)
+        REG_PORT='5000'
+        REG_CFG="$(<./templates/registry/kind-reg-cfg-patches.yaml)"   # Local Registry KinD patches
+        create_reg
+      ;;
     --help|-h)
       printf "\nUsage:\
-        \n    ${LIGHT_GREEN}--k8s_ver,-v${NC}         Set K8s version to be deployed.\
-        \n    ${LIGHT_GREEN}--nodes,-n${NC}           Set number of K8s nodes to be created.\
-        \n    ${LIGHT_GREEN}--all-labelled,-al${NC}   Set labels on all K8s nodes.\
-        \n    ${LIGHT_GREEN}--half-labelled,-hl${NC}  Set labels on half K8s nodes.\
-        \n    ${LIGHT_GREEN}--all-tainted,-at${NC}    Set taints on all K8s nodes. A different label can be defined.\
-        \n    ${LIGHT_GREEN}--half-tainted,-ht${NC}   Set taints on half K8s nodes. A different label can be defined.\
-        \n    ${LIGHT_GREEN}--purge,-p${NC}           Purges interactively any existing clusters and temp configs.\
-        \n    ${LIGHT_GREEN}--opt-apps,-oa${NC}       Deploy supported optional app(s).\
-        \n    ${LIGHT_GREEN}--list-oa,-loa${NC}       List supported optional app(s).\
-        \n    ${LIGHT_GREEN}--help,-h${NC}            Prints this message.\
-        \nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope${NC}\n"   # Flag argument
+        \n    ${LIGHT_GREEN}--all-labelled,-al${NC}      Set labels on all K8s nodes.\
+        \n    ${LIGHT_GREEN}--all-tainted,-at${NC}       Set taints on all K8s nodes. A different label can be defined.\
+        \n    ${LIGHT_GREEN}--create-registry,-cr${NC}   Create local container registry for K8s cluster.\
+        \n    ${LIGHT_GREEN}--half-labelled,-hl${NC}     Set labels on half K8s nodes.\
+        \n    ${LIGHT_GREEN}--half-tainted,-ht${NC}      Set taints on half K8s nodes. A different label can be defined.\
+        \n    ${LIGHT_GREEN}--k8s_ver,-v${NC}            Set K8s version to be deployed.\
+        \n    ${LIGHT_GREEN}--list-oa,-loa${NC}          List supported optional app(s).\
+        \n    ${LIGHT_GREEN}--nodes,-n${NC}              Set number of K8s nodes to be created.\
+        \n    ${LIGHT_GREEN}--opt-apps,-oa${NC}          Deploy supported optional app(s).\
+        \n    ${LIGHT_GREEN}--purge,-p${NC}              Purges interactively any existing clusters and temp configs.\
+        \n    ${LIGHT_GREEN}--help,-h${NC}               Prints this message.\
+        \nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr${NC}\n"   # Flag argument
       exit 0
       ;;
     *)
@@ -154,15 +193,26 @@ if [ "${NO_NODES}" == 1 ]; then
 else
   NO_NODES_CREATE="${NO_NODES}"
 fi
+
 ## Create new KinD config
 KIND_CFG="${KIND_CFG}${KIND_CTRL_CFG}"
+
 for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
   do
     KIND_CFG="${KIND_CFG}${KIND_WRKR_CFG}"
   done
 
+if [[ ! -z "$REG_NAME" ]]; then
+  KIND_CFG="${KIND_CFG}${REG_CFG}"
+fi
+
 # Create KinD cluster
 kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
+
+if [[ ! -z "$REG_NAME" ]]; then
+  kubectl apply -f templates/registry/kind-reg-configmap.yaml
+  conn_to_kind_netw
+fi
 
 # Deploy default apps
 helmfile -f ./helmfiles/apps/default/helmfile.yaml apply > /dev/null
