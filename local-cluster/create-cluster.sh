@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
 LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
