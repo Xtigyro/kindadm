@@ -69,6 +69,19 @@ function create_reg {
   fi
 }
 
+function conn_to_kind_netw {
+  CONTAINERS=$(docker network inspect kind -f "{{range .Containers}}{{.Name}} {{end}}")
+  NEEDS_CONNECT="true"
+  for c in $CONTAINERS; do
+    if [ "$c" = "${REG_NAME}" ]; then
+      NEEDS_CONNECT="false"
+    fi
+  done
+  if [ "${NEEDS_CONNECT}" = "true" ]; then
+    docker network connect kind "${REG_NAME}" || true
+  fi
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
     --nodes=*|-n=*)
@@ -172,10 +185,6 @@ else
 fi
 
 ## Create new KinD config
-if [[ ! -z "$REG_NAME" ]]; then
-  KIND_CFG="${KIND_CFG}${REG_CFG}"
-fi
-
 KIND_CFG="${KIND_CFG}${KIND_CTRL_CFG}"
 
 for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
@@ -183,11 +192,16 @@ for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
     KIND_CFG="${KIND_CFG}${KIND_WRKR_CFG}"
   done
 
+if [[ ! -z "$REG_NAME" ]]; then
+  KIND_CFG="${KIND_CFG}${REG_CFG}"
+fi
+
 # Create KinD cluster
 kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
 
 if [[ ! -z "$REG_NAME" ]]; then
   kubectl apply -f templates/registry/kind-reg-configmap.yaml
+  conn_to_kind_netw
 fi
 
 # Deploy default apps
