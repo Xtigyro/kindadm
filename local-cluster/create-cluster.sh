@@ -71,11 +71,23 @@ function create_reg {
 }
 
 function rm_reg {
-  # remove registry container
+  # conditionally remove registry container
   running="$(docker inspect -f '{{.State.Running}}' "${REG_NAME}" 2>/dev/null || true)"
-  if [ "${running}" == 'true' ]; then
-    docker rm -f "${REG_NAME}"
-  fi
+  echo -e "\nPurge the local Container Registry for K8s cluster(s)?"
+  select yn in "Yes" "No"; do
+      case $yn in
+          Yes )
+            if [ "${running}" == 'true' ]; then
+              docker rm -f "${REG_NAME}" >/dev/null
+              echo -e "${LIGHT_GREEN}Local Container Registry - purged.${NC}"
+            else
+              echo -e "${LIGHT_GREEN}No local registry found.${NC}"
+            fi
+            break;;
+          No )
+            break;;
+      esac
+  done
 }
 
 function conn_to_kind_netw {
@@ -139,9 +151,9 @@ while [ $# -gt 0 ]; do
       for ((i=0;i<"${#clusters[@]}";i++)); do
           kind delete cluster --name "${clusters[i]}"
       done
-      rm_reg
       printf "\n${LIGHT_GREEN}Clusters left:${NC}\n"
       kind get clusters
+      rm_reg
       exit 0
       ;;
     --list-oa|-loa)
