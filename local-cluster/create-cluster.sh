@@ -99,7 +99,7 @@ function conn_to_kind_netw {
     fi
   done
   if [ "${NEEDS_CONNECT}" = "true" ]; then
-    docker network connect kind "${REG_NAME}" || true
+    docker network connect kind "${REG_NAME}" 2>/dev/null || true
   fi
 }
 
