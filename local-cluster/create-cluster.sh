@@ -41,21 +41,21 @@ function contains_strings_from_strings {
 function purge_clusters {
   select choice in "ALL_CLUSTERS" "PER_CLUSTER"; do
   case "$choice" in
-    ALL_CLUSTERS) echo "$choice";
-    IFS='\n' declare -g clusters=(${K8S_CLUSTERS});
-    break;;
-    PER_CLUSTER) echo "$choice";
-    echo "Which cluster to purge?";
-    read -p "[ ${K8S_CLUSTERS} ]: " K8S_CLUSTER;
-    if ! `contains_string "${K8S_CLUSTERS}" "$K8S_CLUSTER"`; then
-      echo "Invalid cluster name."
-      exit 3
-    fi
-    declare -g clusters=("$K8S_CLUSTER");
-    break;;
-    *) echo "'ALL_CLUSTERS' or 'PER_CLUSTER' must be chosen.";
-    exit 4;
-    break;;
+    ALL_CLUSTERS ) echo "$choice";
+      IFS='\n' declare -g clusters=(${K8S_CLUSTERS});
+      break;;
+    PER_CLUSTER ) echo "$choice";
+      echo "Which cluster to purge?";
+      read -p "[ ${K8S_CLUSTERS} ]: " K8S_CLUSTER;
+      if ! `contains_string "${K8S_CLUSTERS}" "$K8S_CLUSTER"`; then
+        echo "Invalid cluster name."
+        exit 3
+      fi
+      declare -g clusters=("$K8S_CLUSTER");
+      break;;
+    * ) echo "'ALL_CLUSTERS' or 'PER_CLUSTER' must be chosen.";
+      exit 4;
+      break;;
   esac
   done
 }
@@ -76,15 +76,15 @@ function rm_reg {
   echo -e "\nPurge the local Container Registry for K8s cluster(s)?"
   select yn in "Yes" "No"; do
       case $yn in
-          Yes )
+          Yes ) echo "$yn";
             if [ "${running}" == 'true' ]; then
               docker rm -f "${REG_NAME}" >/dev/null
-              echo -e "${LIGHT_GREEN}Local Container Registry - purged.${NC}"
+              echo -e "Local Container Registry - ${LIGHT_GREEN}purged${NC}."
             else
               echo -e "${LIGHT_GREEN}No local registry found.${NC}"
             fi
             break;;
-          No )
+          No ) echo "$yn";
             break;;
       esac
   done
