@@ -226,6 +226,9 @@ if [[ ! -z "$REG_CFG" ]]; then
   conn_to_kind_netw
 fi
 
+# Deploy Kubernetes Dashboard Admin ClusterRoleBinding
+kubectl apply -f ./templates/k8s-dashboard-rolebinding.yaml
+
 # Deploy default apps
 helmfile -f ./helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
 
