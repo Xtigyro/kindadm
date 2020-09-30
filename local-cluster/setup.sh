@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 set -e
 
+# default versions
+HELM_VER='2.16.12'
+HELM_PLUGIN_DIFF_VER='3.1.3'
+HELM_PLUGIN_TILLER_VER='0.9.3'
+HELMFILE_VER='0.129.4'
+KIND_VERSION='0.9.0'
+KUBECTL_VERSION='1.19.2'
+
 LIGHT_GREEN='\033[1;32m'
 NC='\033[0m' # No Color
-
-# default Helm version
-HELM_VER='2.16.12'
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -49,9 +54,8 @@ sudo systemctl unmask docker && \
 sudo systemctl start docker
 
 # Install latest "kubectl"
-KUBECTL_VERSION="$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)" && \
 echo -e "\nDownloading kubectl binary..." && \
-curl -LO https://storage.googleapis.com/kubernetes-release/release/"$KUBECTL_VERSION"/bin/linux/amd64/kubectl && \
+curl -LO https://storage.googleapis.com/kubernetes-release/release/v"$KUBECTL_VERSION"/bin/linux/amd64/kubectl && \
 chmod +x ./kubectl && \
 yes | sudo mv ./kubectl /usr/local/bin/kubectl >/dev/null 2>&1 && \
 echo -e "\nkubectl version:" && \
@@ -71,24 +75,24 @@ source <(helm completion bash)
 # Install/update Helm plugins: "helm-diff", "tiller"
 echo -e "\nInstalling/updating Helm plugins: \"helm-diff\" and \"tiller\"..."
 mkdir -p "$(helm home)/plugins"
-helm plugin install https://github.com/rimusz/helm-tiller >/dev/null 2>&1 && \
-helm plugin install https://github.com/databus23/helm-diff >/dev/null 2>&1 || \
+set +e; helm plugin remove tiller diff >/dev/null 2>&1; set -e
+helm plugin install https://github.com/rimusz/helm-tiller --version="$HELM_PLUGIN_TILLER_VER" >/dev/null 2>&1 && \
+helm plugin install https://github.com/databus23/helm-diff --version="$HELM_PLUGIN_DIFF_VER" >/dev/null 2>&1 || \
 helm plugin update diff tiller >/dev/null
 echo -e "\nInstalled Helm plugins:"
 helm plugin list 2>/dev/null
 
 # Install latest "helmfile"
 echo -e "\nDownloading Helmfile binary..." && \
-curl -LO https://github.com/roboll/helmfile/releases/latest/download/helmfile_linux_amd64 && \
+curl -LO https://github.com/roboll/helmfile/releases/download/v"$HELMFILE_VER"/helmfile_linux_amd64 && \
 chmod +x ./helmfile_linux_amd64 && \
 yes | mv ./helmfile_linux_amd64 /usr/local/bin/helmfile >/dev/null 2>&1 && \
 echo -e "\n" && \
 helmfile -v
 
 # Install kINd
-KIND_VERSION=v0.9.0 && \
 echo -e "\nDownloading kINd binary..." && \
-curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/"$KIND_VERSION"/kind-$(uname)-amd64 && \
+curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v"$KIND_VERSION"/kind-$(uname)-amd64 && \
 chmod +x ./kind && \
 yes | mv ./kind /usr/local/bin/kind >/dev/null 2>&1 && \
 echo -e "\nkINd version:" && \

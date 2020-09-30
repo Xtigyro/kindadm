@@ -14,14 +14,14 @@ To create a local one or multi-node Kubernetes (K8s) cluster - please run:
 cd local-cluster
 
 # Extra args are optional.
-bash prerequisites-cmds.sh --helm_ver=2.[x].[x]
-bash create-cluster.sh --nodes=[1-99] --k8s_ver=1.[x].[x]
+bash setup.sh --helm_ver=2.[x].[x]
+bash kindadm.sh --nodes=[1-99] --k8s_ver=1.[x].[x]
 ```
 
 To purge interactively any created cluster(s):
 
 ```bash
-bash create-cluster.sh --purge
+bash kindadm.sh --purge
 ```
 
 ## Helper Menu
@@ -40,17 +40,17 @@ Usage:
     --purge,-p              Purges interactively any existing clusters and temp configs.
     --help,-h               Prints this message.
 Example:
-    bash create-cluster.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr
+    bash kindadm.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr
 ```
 
 ```console
-# bash prerequisites-cmds.sh -h
+# bash setup.sh -h
 
 Usage:
     --helm_ver,-hv      Set Helm version to be deployed.
     --help,-h           Prints this message.
 Example:
-    bash prerequisites-cmds.sh -hv=2.16.12
+    bash setup.sh -hv=2.16.12
 ```
 
 ### Supported Optional Apps
@@ -72,9 +72,9 @@ http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-da
 
 ## Prerequisite Notes
 
-The `prerequisites-cmds.sh` can be used either like a true Shell script, or the commands which are part of it can be executed one by one. It depends on your preference.
+The `setup.sh` can be used either like a true Shell script, or the commands which are part of it can be executed one by one. It depends on your preference.
 
-`prerequisites-cmds.sh` downloads and installs the following software:
+`setup.sh` downloads and installs the following software:
 
 1. Linux Docker container runtime (`docker.io` or `docker-ce` pkg depending on your OS).
 2. `kubectl` binary.
