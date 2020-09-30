@@ -4,10 +4,6 @@ Create and administer a local one or multi-node Kubernetes cluster(s) in Docker 
 
 > **NOTE**: Those of you who would like to use the automation with Helm v2 - please switch to branch `helm-v2`.
 
-## Demo
-
-![gif](demo.gif)
-
 ## Quick Start
 
 To create a local one or multi-node Kubernetes (K8s) cluster - please run:
