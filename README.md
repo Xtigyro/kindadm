@@ -2,10 +2,6 @@
 
 Create and administer a local one or multi-node Kubernetes cluster(s) in Docker container(s) with properly configured Helm v2 (optionally `tillerless`), Ingress Controller, MetalLB, Metrics Server, and Kubernetes Dashboard with simple interactive commands.
 
-## Demo
-
-![gif](demo.gif)
-
 ## Quick Start
 
 To create a local one or multi-node Kubernetes (K8s) cluster - please run:
