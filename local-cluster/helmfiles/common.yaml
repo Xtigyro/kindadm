@@ -4,6 +4,7 @@ helmDefaults:
   cleanupOnFail: true
   timeout: 900
   force: true
+  verify: false
 
 templates:
   common: &common
