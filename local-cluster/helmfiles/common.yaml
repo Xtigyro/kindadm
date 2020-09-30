@@ -3,6 +3,14 @@ helmDefaults:
   timeout: 900
   tillerless: true
 
+repositories:
+  - name: stable
+    url: https://kubernetes-charts.storage.googleapis.com/
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+  - name: kubernetes-dashboard
+    url: https://kubernetes.github.io/dashboard
+
 templates:
   common: &common
     missingFileHandler: Warn

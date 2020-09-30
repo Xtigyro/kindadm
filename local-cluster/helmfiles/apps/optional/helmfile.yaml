@@ -1,6 +1,2 @@
-repositories:
-  - name: stable
-    url: https://kubernetes-charts.storage.googleapis.com/
-
 helmfiles:
   - ./*/helmfile.yaml

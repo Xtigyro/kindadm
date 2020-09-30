@@ -83,7 +83,7 @@ The `setup.sh` can be used either like a true Shell script, or the commands whic
 5. `helmfile` binary.
 6. `kind` binary.
 
-It can be run multiple times and be used even just to update to the latest stable versions of `kubectl`, `helm-diff`, and `helmfile`.
+It can be run multiple times.
 
 ## Credits
 
