@@ -214,28 +214,28 @@ for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
     KIND_CFG="${KIND_CFG}${KIND_WRKR_CFG}"
   done
 
-if [[ ! -z "$REG_NAME" ]]; then
+if [[ ! -z "$REG_CFG" ]]; then
   KIND_CFG="${KIND_CFG}${REG_CFG}"
 fi
 
 # Create KinD cluster
 kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
 
-if [[ ! -z "$REG_NAME" ]]; then
+if [[ ! -z "$REG_CFG" ]]; then
   kubectl apply -f templates/registry/kind-reg-configmap.yaml
   conn_to_kind_netw
 fi
 
 # Deploy default apps
-helmfile -f ./helmfiles/apps/default/helmfile.yaml apply > /dev/null
+helmfile -f ./helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
 
 # Deploy conditionally optional apps
 if [[ ! -z "$OPT_APPS" ]]; then
   if [[ "$OPT_APPS" == "all" ]]; then
-    helmfile -f ./helmfiles/apps/optional/helmfile.yaml apply > /dev/null
+    helmfile -f ./helmfiles/apps/optional/helmfile.yaml apply --concurrency 1 > /dev/null
   else
     for app in "$OPT_APPS"; do
-      helmfile -f ./helmfiles/apps/optional/"$app"/helmfile.yaml apply > /dev/null
+      helmfile -f ./helmfiles/apps/optional/"$app"/helmfile.yaml apply --concurrency 1 > /dev/null
     done
   fi
 fi
