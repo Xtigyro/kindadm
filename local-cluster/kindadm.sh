@@ -236,6 +236,9 @@ helm init --service-account tiller
 # Deploy default apps
 helmfile -f ./helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
 
+# Deploy Kubernetes Dashboard Admin ClusterRoleBinding
+kubectl apply -f ./templates/k8s-dashboard-rolebinding.yaml
+
 # Deploy conditionally optional apps
 if [[ ! -z "$OPT_APPS" ]]; then
   if [[ "$OPT_APPS" == "all" ]]; then
@@ -246,9 +249,6 @@ if [[ ! -z "$OPT_APPS" ]]; then
     done
   fi
 fi
-
-# Deploy Kubernetes Dashboard Admin ClusterRoleBinding
-kubectl apply -f ./templates/k8s-dashboard-rolebinding.yaml
 
 # Get node names
 CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)
