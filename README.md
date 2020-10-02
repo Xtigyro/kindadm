@@ -11,7 +11,8 @@ To create a local one or multi-node Kubernetes (K8s) cluster - please run:
 ```bash
 cd local-cluster
 
-# Extra args are optional.
+## Extra args are optional.
+#
 bash setup.sh --helm_ver=3.[x].[x]
 bash kindadm.sh --nodes=[1-99] --k8s_ver=1.[x].[x]
 ```
