@@ -6,7 +6,7 @@ Create and administer a local one or multi-node Kubernetes cluster(s) in Docker 
 
 ## Quick Start
 
-To create a local one or multi-node Kubernetes (K8s) cluster - please run:
+To create a local one or multi-node Kubernetes (K8s) cluster(s) - please run:
 
 ```bash
 cd local-cluster
@@ -31,14 +31,14 @@ bash kindadm.sh --purge
 Usage:
     --all-labelled,-al      Set labels on all K8s nodes.
     --all-tainted,-at       Set taints on all K8s nodes. A different label can be defined.
-    --create-registry,-cr   Create local container registry for K8s cluster.
+    --create-registry,-cr   Create local container registry for K8s cluster(s).
     --half-labelled,-hl     Set labels on half K8s nodes.
     --half-tainted,-ht      Set taints on half K8s nodes. A different label can be defined.
     --k8s_ver,-v            Set K8s version to be deployed.
     --list-oa,-loa          List supported optional app(s).
     --nodes,-n              Set number of K8s nodes to be created.
     --opt-apps,-oa          Deploy supported optional app(s).
-    --purge,-p              Purges interactively any existing clusters and temp configs.
+    --purge,-p              Purge interactively any existing cluster(s) and related resources.
     --help,-h               Prints this message.
 Example:
     bash kindadm.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr
