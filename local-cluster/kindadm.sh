@@ -170,14 +170,14 @@ while [ $# -gt 0 ]; do
       printf "\nUsage:\
         \n    ${LIGHT_GREEN}--all-labelled,-al${NC}      Set labels on all K8s nodes.\
         \n    ${LIGHT_GREEN}--all-tainted,-at${NC}       Set taints on all K8s nodes. A different label can be defined.\
-        \n    ${LIGHT_GREEN}--create-registry,-cr${NC}   Create local container registry for K8s cluster.\
+        \n    ${LIGHT_GREEN}--create-registry,-cr${NC}   Create local container registry for K8s cluster(s).\
         \n    ${LIGHT_GREEN}--half-labelled,-hl${NC}     Set labels on half K8s nodes.\
         \n    ${LIGHT_GREEN}--half-tainted,-ht${NC}      Set taints on half K8s nodes. A different label can be defined.\
         \n    ${LIGHT_GREEN}--k8s_ver,-v${NC}            Set K8s version to be deployed.\
         \n    ${LIGHT_GREEN}--list-oa,-loa${NC}          List supported optional app(s).\
         \n    ${LIGHT_GREEN}--nodes,-n${NC}              Set number of K8s nodes to be created.\
         \n    ${LIGHT_GREEN}--opt-apps,-oa${NC}          Deploy supported optional app(s).\
-        \n    ${LIGHT_GREEN}--purge,-p${NC}              Purges interactively any existing clusters and temp configs.\
+        \n    ${LIGHT_GREEN}--purge,-p${NC}              Purge interactively any existing cluster(s) and related resources.\
         \n    ${LIGHT_GREEN}--help,-h${NC}               Prints this message.\
         \nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr${NC}\n"   # Flag argument
       exit 0
