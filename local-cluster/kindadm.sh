@@ -250,21 +250,19 @@ IFS=$'\n' CLUSTER_WRKS=(${CLUSTER_WRKS})
 # Put node labels
 if [[ ! -z "$COEFFICIENT_LABEL" ]]; then
   NO_NODES_LABELLED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_LABEL" | awk '{printf("%d\n",$1 + 0.5)}')"
-  for ((i=1;i<="$NO_NODES_LABELLED";i++));
-    do
-      kubectl label node "${CLUSTER_WRKS[i]}" "$NODE_LABEL"
-    done
+  for ((i=1;i<="$NO_NODES_LABELLED";i++)); do
+      kubectl label node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL"
+  done
 fi
 
 # Taint nodes with "NoExecute"
 if [[ ! -z "$COEFFICIENT_TAINT" ]]; then
   NO_NODES_TAINTED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_TAINT" | awk '{printf("%d\n",$1 + 0.5)}')"
-  for ((i=1;i<="$NO_NODES_TAINTED";i++));
-    do
+  for ((i=1;i<="$NO_NODES_TAINTED";i++)); do
       if [[ ! -z "$NODE_LABEL" ]] && [[ -z "$NODE_TAINT_LABEL" ]] ; then
-        kubectl taint node "${CLUSTER_WRKS[i]}" "$NODE_LABEL":NoExecute
+        kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL":NoExecute
       else
-        kubectl taint node "${CLUSTER_WRKS[i]}" "$NODE_TAINT_LABEL":NoExecute
+        kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_TAINT_LABEL":NoExecute
       fi
-    done
+  done
 fi
