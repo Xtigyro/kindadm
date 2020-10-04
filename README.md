@@ -60,7 +60,7 @@ Example:
 
 ### Access Deployed Services
 
-To access Kubernetes Dashboard from your local workstation, you must create a secure channel to your Kubernetes cluster. Run the following command:
+- To access Kubernetes Dashboard from your local workstation, you must create a secure channel to your Kubernetes cluster. Run the following command:
 
 ```bash
 kubectl proxy
@@ -71,7 +71,7 @@ Now you can access the dashboard at:
 [`http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:https/proxy/`](
 http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:https/proxy/).
 
-To access Weave Scope (if deployed) from your local workstation, run the following command:
+- To access Weave Scope (if deployed) from your local workstation, run the following command:
 
 ```bash
 kubectl port-forward -n weave svc/weave-scope-weave-scope 80
