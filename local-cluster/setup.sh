@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -e
 
-LIGHT_GREEN='\033[1;32m'
-NC='\033[0m' # No Color
-
 # default versions
 HELM_VER='3.3.1'
 HELM_PLUGIN_DIFF_VER='3.1.3'
 HELMFILE_VER='0.130.0'
 KIND_VERSION='0.9.0'
 KUBECTL_VERSION='1.19.2'
+
+LIGHT_GREEN='\033[1;32m'
+NC='\033[0m' # No Color
 
 
 while [ $# -gt 0 ]; do
