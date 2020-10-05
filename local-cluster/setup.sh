@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 # default versions
 HELM_VER='2.16.12'
@@ -40,14 +40,17 @@ done
 OS_ID=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
 
 if [ "$OS_ID" == "\"centos\"" ] || [ "$OS_ID" == "\"rhel\"" ] ; then
-    yum install -y docker-ce curl
+  if ! `sudo rpm -q docker-ce curl >/dev/null 2>&1` ; then
+    sudo yum install -y docker-ce curl
+  fi
 elif [ "$OS_ID" == "ubuntu" ] || [ "$OS_ID" == "debian" ] ; then
-    apt update && apt install -y docker.io curl
+  if ! `sudo dpkg -l docker.io curl >/dev/null 2>&1` ; then
+    sudo apt update && apt install -y docker.io curl
+  fi
 else
     echo "Use "${0}" only on RHEL / CentOS / Ubuntu / Debian"
     exit 3
 fi
-
 
 # Unmask and start Docker service
 sudo systemctl unmask docker && \
@@ -70,7 +73,7 @@ yes | mv ./linux-amd64/helm /usr/local/bin >/dev/null 2>&1 && \
 rm -rf ./linux-amd64 helm-v"$HELM_VER"-linux-amd64.tar.gz && \
 echo -e "\nhelm version:" && \
 helm version --client=true && \
-source <(helm completion bash)
+source <(helm completion bash 2>/dev/null)
 
 # Install/update Helm plugins: "helm-diff", "tiller"
 echo -e "\nInstalling/updating Helm plugins: \"helm-diff\" and \"tiller\"..."
@@ -97,4 +100,4 @@ chmod +x ./kind && \
 yes | mv ./kind /usr/local/bin/kind >/dev/null 2>&1 && \
 echo -e "\nkINd version:" && \
 kind version && \
-source <(kind completion bash)
+source <(kind completion bash 2>/dev/null)
