@@ -12,6 +12,7 @@ KUBECTL_VERSION='1.19.2'
 LIGHT_GREEN='\033[1;32m'
 NC='\033[0m' # No Color
 
+
 while [ $# -gt 0 ]; do
   case "$1" in
     --helm_ver=*|-hv=*)
