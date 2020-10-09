@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
 # default versions
 HELM_VER='3.3.1'
