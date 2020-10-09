@@ -53,6 +53,7 @@ else
 fi
 
 # Unmask and start Docker service
+sudo systemctl is-active --quiet docker || \
 sudo systemctl unmask docker && \
 sudo systemctl start docker
 
@@ -69,8 +70,8 @@ source <(kubectl completion bash 2>/dev/null)
 echo -e "\nDownloading Helm Client binary..." && \
 curl -LO https://get.helm.sh/helm-v"$HELM_VER"-linux-amd64.tar.gz && \
 tar xf helm-v"$HELM_VER"-linux-amd64.tar.gz && \
-yes | mv ./linux-amd64/helm /usr/local/bin >/dev/null 2>&1 && \
-rm -rf ./linux-amd64 helm-v"$HELM_VER"-linux-amd64.tar.gz && \
+yes | sudo mv ./linux-amd64/helm /usr/local/bin >/dev/null 2>&1 && \
+sudo rm -rf ./linux-amd64 helm-v"$HELM_VER"-linux-amd64.tar.gz && \
 echo -e "\nhelm version:" && \
 helm version --client=true && \
 source <(helm completion bash 2>/dev/null)
@@ -89,7 +90,7 @@ helm plugin list 2>/dev/null
 echo -e "\nDownloading Helmfile binary..." && \
 curl -LO https://github.com/roboll/helmfile/releases/download/v"$HELMFILE_VER"/helmfile_linux_amd64 && \
 chmod +x ./helmfile_linux_amd64 && \
-yes | mv ./helmfile_linux_amd64 /usr/local/bin/helmfile >/dev/null 2>&1 && \
+yes | sudo mv ./helmfile_linux_amd64 /usr/local/bin/helmfile >/dev/null 2>&1 && \
 echo -e "\n" && \
 helmfile -v
 
@@ -97,7 +98,7 @@ helmfile -v
 echo -e "\nDownloading kINd binary..." && \
 curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v"$KIND_VERSION"/kind-$(uname)-amd64 && \
 chmod +x ./kind && \
-yes | mv ./kind /usr/local/bin/kind >/dev/null 2>&1 && \
+yes | sudo mv ./kind /usr/local/bin/kind >/dev/null 2>&1 && \
 echo -e "\nkINd version:" && \
 kind version && \
 source <(kind completion bash 2>/dev/null)
