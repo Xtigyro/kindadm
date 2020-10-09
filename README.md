@@ -94,7 +94,7 @@ The `setup.sh` can be used either like a true Shell script, or the commands whic
 5. `helmfile` binary.
 6. `kind` binary.
 
-It can be run multiple times.
+It can be run multiple times. Changes are done only if needed.
 
 ## Credits
 
