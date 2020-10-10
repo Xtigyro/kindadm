@@ -2,6 +2,8 @@
 
 Create and administer a local one or multi-node Kubernetes cluster(s) in Docker container(s) with properly configured Helm v3, Ingress Controller, MetalLB, Metrics Server, and Kubernetes Dashboard with simple interactive commands.
 
+Optional components: Weave Scope, Docker Container Registry.
+
 > **NOTE**: Those of you who would like to use the automation with Helm v2 - please switch to branch `helm-v2`.
 
 ## Quick Start

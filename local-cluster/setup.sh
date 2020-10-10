@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 # default versions
 HELM_VER='3.3.1'
@@ -7,6 +7,7 @@ HELM_PLUGIN_DIFF_VER='3.1.3'
 HELMFILE_VER='0.130.1'
 KIND_VERSION='0.9.0'
 KUBECTL_VERSION='1.19.2'
+CACHE_DIR="$(dirname "${BASH_SOURCE[0]}")/cache"
 
 LIGHT_GREEN='\033[1;32m'
 NC='\033[0m' # No Color
@@ -57,15 +58,24 @@ sudo systemctl is-active --quiet docker || \
 sudo systemctl unmask docker && \
 sudo systemctl start docker
 
+# Create cache dir
+mkdir "$CACHE_DIR"
+
 # Install latest "kubectl"
 if ! `kubectl version --client=true | grep -q "$KUBECTL_VERSION"` ; then
-  echo -e "\nDownloading kubectl binary..." && \
-  curl -LO https://storage.googleapis.com/kubernetes-release/release/v"$KUBECTL_VERSION"/bin/linux/amd64/kubectl && \
-  chmod +x ./kubectl && \
-  yes | sudo mv ./kubectl /usr/local/bin/kubectl >/dev/null 2>&1 && \
-  echo -e "\nkubectl installed:" && \
-  kubectl version --client=true && \
-  source <(kubectl completion bash 2>/dev/null)
+  if ! `bash "$CACHE_DIR"/kubectl version --client=true | grep -q "$KUBECTL_VERSION"`
+    echo -e "\nDownloading kubectl binary..." && \
+    # download in the ./cache dir here
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/v"$KUBECTL_VERSION"/bin/linux/amd64/kubectl && \
+    chmod +x ./kubectl
+
+  else
+
+  fi
+    yes | sudo mv "$CACHE_DIR"/kubectl /usr/local/bin/kubectl >/dev/null 2>&1 && \
+    echo -e "\nkubectl installed:" && \
+    kubectl version --client=true && \
+    source <(kubectl completion bash 2>/dev/null)
 else
   echo -e "\nkubectl present:" && \
   kubectl version --client=true
