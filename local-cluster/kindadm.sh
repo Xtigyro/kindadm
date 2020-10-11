@@ -155,7 +155,6 @@ while [ $# -gt 0 ]; do
       done
       printf "\n${LIGHT_GREEN}Clusters left:${NC}\n"
       "$EXEC_DIR"/kind get clusters
-      kind get clusters
       rm_reg
       exit 0
       ;;
