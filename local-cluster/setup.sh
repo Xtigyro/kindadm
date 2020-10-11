@@ -96,6 +96,8 @@ if ! `"$EXEC_DIR"/helm version --client=true 2>/dev/null | grep -q "$HELM_VER"` 
     chmod +x "$CACHE_DIR"/linux-amd64/helm && \
     yes | cp "$CACHE_DIR"/linux-amd64/helm "$CACHE_DIR"/helm-"$HELM_VER" && \
     yes | mv "$CACHE_DIR"/linux-amd64/helm "$CACHE_DIR"/helm
+  else
+    yes | cp "$CACHE_DIR"/helm-"$HELM_VER" "$CACHE_DIR"/helm
   fi
   if [[ "$SYS_WIDE" == "true" ]] ; then
     yes | sudo cp "$CACHE_DIR"/helm "$EXEC_DIR"/helm >/dev/null 2>&1
