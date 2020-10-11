@@ -88,7 +88,7 @@ Now you can access the Weave Scope Frontend at:
 
 The `setup.sh` can be run multiple times. Changes are done only if needed.
 
-By default `setup.sh` downloads and installs the following software:
+By default it downloads and installs the following software:
 
 - System-wide:
 
