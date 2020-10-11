@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
 # default versions
 HELM_VER='3.3.1'
@@ -7,7 +7,8 @@ HELM_PLUGIN_DIFF_VER='3.1.3'
 HELMFILE_VER='0.130.1'
 KIND_VERSION='0.9.0'
 KUBECTL_VERSION='1.19.2'
-CACHE_DIR="$(dirname "${BASH_SOURCE[0]}")/cache"
+CACHE_DIR="$(dirname "${BASH_SOURCE[0]}")/.cache"
+EXEC_DIR="$CACHE_DIR"
 
 LIGHT_GREEN='\033[1;32m'
 NC='\033[0m' # No Color
@@ -22,11 +23,17 @@ while [ $# -gt 0 ]; do
       fi
       HELM_VER="${1#*=}"
       ;;
+    --sys_wide|-sw)
+      printf "\nInstalling prerequisite binaries and packages ${LIGHT_GREEN}system-wide${NC}.\n"
+      SYS_WIDE=true
+      EXEC_DIR='/usr/local/bin'
+      ;;
     --help|-h)
       printf "\nUsage:\
         \n    ${LIGHT_GREEN}--helm_ver,-hv${NC}      Set Helm version to be deployed.\
+        \n    ${LIGHT_GREEN}--sys_wide,-sw${NC}      Install prerequisites system-wide.\
         \n    ${LIGHT_GREEN}--help,-h${NC}           Prints this message.\
-        \nExample:\n    ${LIGHT_GREEN}bash $0 -hv=3.3.1${NC}\n"   # Flag argument
+        \nExample:\n    ${LIGHT_GREEN}bash $0 -hv=3.3.1 -sw${NC}\n"   # Flag argument
       exit 0
       ;;
     *)
@@ -59,79 +66,92 @@ sudo systemctl unmask docker && \
 sudo systemctl start docker
 
 # Create cache dir
-mkdir "$CACHE_DIR"
+mkdir -p "$CACHE_DIR"
 
 # Install latest "kubectl"
-if ! `kubectl version --client=true | grep -q "$KUBECTL_VERSION"` ; then
-  if ! `bash "$CACHE_DIR"/kubectl version --client=true | grep -q "$KUBECTL_VERSION"`
+if ! `"$EXEC_DIR"/kubectl version --client=true | grep -q "$KUBECTL_VERSION"` ; then
+  if ! `"$CACHE_DIR"/kubectl version --client=true | grep -q "$KUBECTL_VERSION"` ; then
     echo -e "\nDownloading kubectl binary..." && \
-    # download in the ./cache dir here
-    curl -LO https://storage.googleapis.com/kubernetes-release/release/v"$KUBECTL_VERSION"/bin/linux/amd64/kubectl && \
-    chmod +x ./kubectl
-
-  else
-
+    curl -L https://storage.googleapis.com/kubernetes-release/release/v"$KUBECTL_VERSION"/bin/linux/amd64/kubectl -o "$CACHE_DIR"/kubectl && \
+    chmod +x "$CACHE_DIR"/kubectl
   fi
-    yes | sudo mv "$CACHE_DIR"/kubectl /usr/local/bin/kubectl >/dev/null 2>&1 && \
-    echo -e "\nkubectl installed:" && \
-    kubectl version --client=true && \
-    source <(kubectl completion bash 2>/dev/null)
+  if `"$SYS_WIDE"` ; then
+    yes | sudo cp "$CACHE_DIR"/kubectl "$EXEC_DIR/kubectl" >/dev/null 2>&1
+  fi
+  echo -e "\nkubectl installed:" && \
+  "$EXEC_DIR/kubectl" version --client=true && \
+  source <("$EXEC_DIR/kubectl" completion bash 2>/dev/null)
 else
   echo -e "\nkubectl present:" && \
-  kubectl version --client=true
+  "$EXEC_DIR/kubectl" version --client=true && \
+  source <("$EXEC_DIR/kubectl" completion bash 2>/dev/null)
 fi
 
 # Install "helm"
-if ! `helm version --client=true | grep -q "$HELM_VER"` ; then
-  echo -e "\nDownloading Helm Client binary..." && \
-  curl -LO https://get.helm.sh/helm-v"$HELM_VER"-linux-amd64.tar.gz && \
-  tar xf helm-v"$HELM_VER"-linux-amd64.tar.gz && \
-  yes | sudo mv ./linux-amd64/helm /usr/local/bin >/dev/null 2>&1 && \
-  sudo rm -rf ./linux-amd64 helm-v"$HELM_VER"-linux-amd64.tar.gz && \
+if ! `"$EXEC_DIR"/helm version --client=true | grep -q "$HELM_VER"` ; then
+  if ! `"$CACHE_DIR"/helm version --client=true | grep -q "$HELM_VER"` ; then
+    echo -e "\nDownloading Helm Client binary..." && \
+    curl -L https://get.helm.sh/helm-v"$HELM_VER"-linux-amd64.tar.gz -o "$CACHE_DIR"/helm-v"$HELM_VER"-linux-amd64.tar.gz && \
+    tar xf "$CACHE_DIR"/helm-v"$HELM_VER"-linux-amd64.tar.gz -C "$CACHE_DIR" && \
+    chmod +x "$CACHE_DIR"/linux-amd64/helm && \
+    mv "$CACHE_DIR"/linux-amd64/helm "$CACHE_DIR"/helm
+  fi
+  if `"$SYS_WIDE"` ; then
+    yes | sudo cp "$CACHE_DIR"/helm "$EXEC_DIR"/helm >/dev/null 2>&1
+  fi
+  sudo rm -rf "$CACHE_DIR"/linux-amd64 "$CACHE_DIR"/helm-v"$HELM_VER"-linux-amd64.tar.gz && \
   echo -e "\nHelm installed:" && \
-  helm version --client=true && \
-  source <(helm completion bash 2>/dev/null)
+  "$EXEC_DIR"/helm version --client=true && \
+  source <("$EXEC_DIR"/helm completion bash 2>/dev/null)
 else
   echo -e "\nHelm present:" && \
-  helm version --client=true
+  "$EXEC_DIR"/helm version --client=true
 fi
 
 # Install/update Helm plugins: "helm-diff"
-if ! `helm plugin list | xargs -L1 | grep -q $'diff '$HELM_PLUGIN_DIFF_VER$''` ; then
+if ! `"$EXEC_DIR"/helm plugin list | xargs -L1 | grep -q $'diff '$HELM_PLUGIN_DIFF_VER$''` ; then
   echo -e "\nInstalling/updating Helm plugins: helm-diff..."
-  set +e; helm plugin remove diff >/dev/null 2>&1; set -e
-  helm plugin install https://github.com/databus23/helm-diff --version="$HELM_PLUGIN_DIFF_VER" >/dev/null 2>&1 || \
-  helm plugin update diff >/dev/null
+  set +e; "$EXEC_DIR"/helm plugin remove diff >/dev/null 2>&1; set -e
+  "$EXEC_DIR"/helm plugin install https://github.com/databus23/helm-diff --version="$HELM_PLUGIN_DIFF_VER" >/dev/null 2>&1 || \
+  "$EXEC_DIR"/helm plugin update diff >/dev/null
   echo -e "\nHelm plugins installed:"
-  helm plugin list 2>/dev/null
+  "$EXEC_DIR"/helm plugin list 2>/dev/null
 else
   echo -e "\nHelm plugins present:" && \
-  helm plugin list 2>/dev/null
+  "$EXEC_DIR"/helm plugin list 2>/dev/null
 fi
 
 # Install latest "helmfile"
-if ! `helmfile -v | grep -q "$HELMFILE_VER"` ; then
-  echo -e "\nDownloading Helmfile binary..." && \
-  curl -LO https://github.com/roboll/helmfile/releases/download/v"$HELMFILE_VER"/helmfile_linux_amd64 && \
-  chmod +x ./helmfile_linux_amd64 && \
-  yes | sudo mv ./helmfile_linux_amd64 /usr/local/bin/helmfile >/dev/null 2>&1 && \
+if ! `"$EXEC_DIR"/helmfile -v | grep -q "$HELMFILE_VER"` ; then
+  if ! `"$CACHE_DIR"/helmfile -v | grep -q "$HELMFILE_VER"` ; then
+    echo -e "\nDownloading Helmfile binary..." && \
+    curl -L https://github.com/roboll/helmfile/releases/download/v"$HELMFILE_VER"/helmfile_linux_amd64 -o "$CACHE_DIR"/helmfile && \
+    chmod +x "$CACHE_DIR"/helmfile
+  fi
+  if `"$SYS_WIDE"` ; then
+    yes | sudo cp "$CACHE_DIR"/helmfile "$EXEC_DIR"/helmfile >/dev/null 2>&1
+  fi
   echo -e "\nInstalled:" && \
-  helmfile -v
+  "$EXEC_DIR"/helmfile -v
 else
   echo -e "\nPresent:" && \
-  helmfile -v
+  "$EXEC_DIR"/helmfile -v
 fi
 
 # Install kINd
-if ! `kind version | grep -q "$KIND_VERSION"` ; then
-  echo -e "\nDownloading kINd binary..." && \
-  curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v"$KIND_VERSION"/kind-$(uname)-amd64 && \
-  chmod +x ./kind && \
-  yes | sudo mv ./kind /usr/local/bin/kind >/dev/null 2>&1 && \
+if ! `"$EXEC_DIR"/kind version | grep -q "$KIND_VERSION"` ; then
+  if ! `"$CACHE_DIR"/kind version | grep -q "$KIND_VERSION"` ; then
+    echo -e "\nDownloading kINd binary..." && \
+    curl -L https://github.com/kubernetes-sigs/kind/releases/download/v"$KIND_VERSION"/kind-$(uname)-amd64 -o "$CACHE_DIR"/kind && \
+    chmod +x "$CACHE_DIR"/kind
+  fi
+  if `"$SYS_WIDE"` ; then
+    yes | sudo cp "$CACHE_DIR"/kind "$EXEC_DIR"/kind >/dev/null 2>&1
+  fi
   echo -e "\nInstalled:" && \
-  kind version && \
-  source <(kind completion bash 2>/dev/null)
+  "$EXEC_DIR"/kind version && \
+  source <("$EXEC_DIR"/kind completion bash 2>/dev/null)
 else
   echo -e "\nPresent:" && \
-  kind version
+  "$EXEC_DIR"/kind version
 fi
