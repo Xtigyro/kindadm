@@ -90,18 +90,21 @@ Now you can access the Weave Scope Frontend at:
 
 ## Prerequisite Notes
 
-The `setup.sh` can be used either like a true Shell script, or the commands which are part of it can be executed one by one. It depends on your preference.
+The `setup.sh` can be run multiple times. Changes are done only if needed.
 
-It can be run multiple times. Changes are done only if needed.
+By default it downloads and installs the following software:
 
-By default `setup.sh` downloads and installs Docker Runtime OS package and the following binaries in self-contained `.cache` dir:
+- System-wide:
 
 1. Linux Docker Container Runtime (`docker.io` or `docker-ce` OS pkg).
-2. `kubectl` binary.
-3. `helm` binary.
-4. Helm plugins: `helm-diff`.
-5. `helmfile` binary.
-6. `kind` binary.
+
+- In self-contained `.cache` dir:
+
+1. `kubectl` binary.
+2. `helm` binary.
+3. Helm plugins: `helm-diff`.
+4. `helmfile` binary.
+5. `kind` binary.
 
 With `--sys_wide` flag the aforementioned binaries will be installed system-wide (in `/usr/local/bin` dir).
 
