@@ -51,9 +51,10 @@ Example:
 
 Usage:
     --helm_ver,-hv      Set Helm version to be deployed.
+    --sys_wide,-sw      Install prerequisites system-wide.
     --help,-h           Prints this message.
 Example:
-    bash setup.sh -hv=3.3.1
+    bash setup.sh -hv=3.3.1 -sw
 ```
 
 ### Supported Optional Apps

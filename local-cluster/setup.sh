@@ -89,14 +89,15 @@ fi
 
 # Install "helm"
 if ! `"$EXEC_DIR"/helm version --client=true | grep -q "$HELM_VER"` ; then
-  if ! `"$CACHE_DIR"/helm version --client=true | grep -q "$HELM_VER"` ; then
+  if ! `"$CACHE_DIR"/helm-"$HELM_VER" version --client=true | grep -q "$HELM_VER"` ; then
     echo -e "\nDownloading Helm Client binary..." && \
     curl -L https://get.helm.sh/helm-v"$HELM_VER"-linux-amd64.tar.gz -o "$CACHE_DIR"/helm-v"$HELM_VER"-linux-amd64.tar.gz && \
     tar xf "$CACHE_DIR"/helm-v"$HELM_VER"-linux-amd64.tar.gz -C "$CACHE_DIR" && \
     chmod +x "$CACHE_DIR"/linux-amd64/helm && \
-    mv "$CACHE_DIR"/linux-amd64/helm "$CACHE_DIR"/helm
+    yes | cp "$CACHE_DIR"/linux-amd64/helm "$CACHE_DIR"/helm-"$HELM_VER" && \
+    yes | mv "$CACHE_DIR"/linux-amd64/helm "$CACHE_DIR"/helm
   fi
-  if `"$SYS_WIDE"` ; then
+  if [[ "$SYS_WIDE" == "true" ]] ; then
     yes | sudo cp "$CACHE_DIR"/helm "$EXEC_DIR"/helm >/dev/null 2>&1
   fi
   sudo rm -rf "$CACHE_DIR"/linux-amd64 "$CACHE_DIR"/helm-v"$HELM_VER"-linux-amd64.tar.gz && \
