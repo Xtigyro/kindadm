@@ -70,8 +70,8 @@ sudo systemctl start docker
 mkdir -p "$CACHE_DIR"
 
 # Install latest "kubectl"
-if ! `"$EXEC_DIR"/kubectl version --client=true | grep -q "$KUBECTL_VERSION"` ; then
-  if ! `"$CACHE_DIR"/kubectl version --client=true | grep -q "$KUBECTL_VERSION"` ; then
+if ! `"$EXEC_DIR"/kubectl version --client=true 2>/dev/null | grep -q "$KUBECTL_VERSION"` ; then
+  if ! `"$CACHE_DIR"/kubectl version --client=true 2>/dev/null | grep -q "$KUBECTL_VERSION"` ; then
     echo -e "\nDownloading kubectl binary..." && \
     curl -L https://storage.googleapis.com/kubernetes-release/release/v"$KUBECTL_VERSION"/bin/linux/amd64/kubectl -o "$CACHE_DIR"/kubectl && \
     chmod +x "$CACHE_DIR"/kubectl
@@ -89,8 +89,8 @@ else
 fi
 
 # Install "helm"
-if ! `"$EXEC_DIR"/helm version --client=true | grep -q "$HELM_VER"` ; then
-  if ! `"$CACHE_DIR"/helm-"$HELM_VER" version --client=true | grep -q "$HELM_VER"` ; then
+if ! `"$EXEC_DIR"/helm version --client=true 2>/dev/null | grep -q "$HELM_VER"` ; then
+  if ! `"$CACHE_DIR"/helm-"$HELM_VER" version --client=true 2>/dev/null | grep -q "$HELM_VER"` ; then
     echo -e "\nDownloading Helm Client binary..." && \
     curl -L https://get.helm.sh/helm-v"$HELM_VER"-linux-amd64.tar.gz -o "$CACHE_DIR"/helm-v"$HELM_VER"-linux-amd64.tar.gz && \
     tar xf "$CACHE_DIR"/helm-v"$HELM_VER"-linux-amd64.tar.gz -C "$CACHE_DIR" && \
@@ -126,8 +126,8 @@ else
 fi
 
 # Install latest "helmfile"
-if ! `"$EXEC_DIR"/helmfile -v | grep -q "$HELMFILE_VER"` ; then
-  if ! `"$CACHE_DIR"/helmfile -v | grep -q "$HELMFILE_VER"` ; then
+if ! `"$EXEC_DIR"/helmfile -v 2>/dev/null | grep -q "$HELMFILE_VER"` ; then
+  if ! `"$CACHE_DIR"/helmfile -v 2>/dev/null | grep -q "$HELMFILE_VER"` ; then
     echo -e "\nDownloading Helmfile binary..." && \
     curl -L https://github.com/roboll/helmfile/releases/download/v"$HELMFILE_VER"/helmfile_linux_amd64 -o "$CACHE_DIR"/helmfile && \
     chmod +x "$CACHE_DIR"/helmfile
@@ -143,8 +143,8 @@ else
 fi
 
 # Install kINd
-if ! `"$EXEC_DIR"/kind version | grep -q "$KIND_VERSION"` ; then
-  if ! `"$CACHE_DIR"/kind version | grep -q "$KIND_VERSION"` ; then
+if ! `"$EXEC_DIR"/kind version 2>/dev/null | grep -q "$KIND_VERSION"` ; then
+  if ! `"$CACHE_DIR"/kind version 2>/dev/null | grep -q "$KIND_VERSION"` ; then
     echo -e "\nDownloading kINd binary..." && \
     curl -L https://github.com/kubernetes-sigs/kind/releases/download/v"$KIND_VERSION"/kind-$(uname)-amd64 -o "$CACHE_DIR"/kind && \
     chmod +x "$CACHE_DIR"/kind
