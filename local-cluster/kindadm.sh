@@ -4,8 +4,10 @@ set -e
 LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
 NC='\033[0m'   # No Color
+CACHE_DIR="$(dirname "${BASH_SOURCE[0]}")/.cache"
+EXEC_DIR="$CACHE_DIR"
 KIND_CFG="$(<./templates/kind-base-config.yaml)"   # base config file
-K8S_CLUSTERS="$(kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
+K8S_CLUSTERS="$("$EXEC_DIR"/kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
 SUPPORTED_OPT_APPS="$(ls -d helmfiles/apps/optional/*/ | cut -f4 -d'/')"
 NO_NODES='1'
 REG_NAME='kind-registry'
@@ -149,10 +151,10 @@ while [ $# -gt 0 ]; do
     --purge|-p)
       purge_clusters
       for ((i=0;i<"${#clusters[@]}";i++)); do
-          kind delete cluster --name "${clusters[i]}"
+          "$EXEC_DIR"/kind delete cluster --name "${clusters[i]}"
       done
       printf "\n${LIGHT_GREEN}Clusters left:${NC}\n"
-      kind get clusters
+      "$EXEC_DIR"/kind get clusters
       rm_reg
       exit 0
       ;;
@@ -219,39 +221,39 @@ if [[ ! -z "$REG_CFG" ]]; then
 fi
 
 # Create KinD cluster
-kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
+"$EXEC_DIR"/kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
 
 if [[ ! -z "$REG_CFG" ]]; then
-  kubectl apply -f templates/registry/kind-reg-configmap.yaml
+  "$EXEC_DIR"/kubectl apply -f templates/registry/kind-reg-configmap.yaml
   conn_to_kind_netw
 fi
 
 # Deploy default apps
-helmfile -f ./helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
+"$EXEC_DIR"/helmfile -f ./helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
 
 # Deploy Kubernetes Dashboard Admin ClusterRoleBinding
-kubectl apply -f ./templates/k8s-dashboard-rolebinding.yaml
+"$EXEC_DIR"/kubectl apply -f ./templates/k8s-dashboard-rolebinding.yaml
 
 # Deploy conditionally optional apps
 if [[ ! -z "$OPT_APPS" ]]; then
   if [[ "$OPT_APPS" == "all" ]]; then
-    helmfile -f ./helmfiles/apps/optional/helmfile.yaml apply --concurrency 1 > /dev/null
+    "$EXEC_DIR"/helmfile -f ./helmfiles/apps/optional/helmfile.yaml apply --concurrency 1 > /dev/null
   else
     for app in "$OPT_APPS"; do
-      helmfile -f ./helmfiles/apps/optional/"$app"/helmfile.yaml apply --concurrency 1 > /dev/null
+      "$EXEC_DIR"/helmfile -f ./helmfiles/apps/optional/"$app"/helmfile.yaml apply --concurrency 1 > /dev/null
     done
   fi
 fi
 
 # Get node names
-CLUSTER_WRKS=$(kubectl get nodes | tail -n +2 | cut -d' ' -f1)
+CLUSTER_WRKS=$("$EXEC_DIR"/kubectl get nodes | tail -n +2 | cut -d' ' -f1)
 IFS=$'\n' CLUSTER_WRKS=(${CLUSTER_WRKS})
 
 # Put node labels
 if [[ ! -z "$COEFFICIENT_LABEL" ]]; then
   NO_NODES_LABELLED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_LABEL" | awk '{printf("%d\n",$1 + 0.5)}')"
   for ((i=1;i<="$NO_NODES_LABELLED";i++)); do
-      kubectl label node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL"
+      "$EXEC_DIR"/kubectl label node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL"
   done
 fi
 
@@ -260,9 +262,9 @@ if [[ ! -z "$COEFFICIENT_TAINT" ]]; then
   NO_NODES_TAINTED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_TAINT" | awk '{printf("%d\n",$1 + 0.5)}')"
   for ((i=1;i<="$NO_NODES_TAINTED";i++)); do
       if [[ ! -z "$NODE_LABEL" ]] && [[ -z "$NODE_TAINT_LABEL" ]] ; then
-        kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL":NoExecute
+        "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL":NoExecute
       else
-        kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_TAINT_LABEL":NoExecute
+        "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_TAINT_LABEL":NoExecute
       fi
   done
 fi
