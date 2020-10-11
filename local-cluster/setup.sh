@@ -88,8 +88,8 @@ else
 fi
 
 # Install "helm"
-if ! `"$EXEC_DIR"/helm version --client=true | grep -q "$HELM_VER" 2>/dev/null` ; then
-  if ! `"$CACHE_DIR"/helm-"$HELM_VER" version --client=true | grep -q "$HELM_VER" 2>/dev/null` ; then
+if ! `"$EXEC_DIR"/helm version --client=true | grep -q "$HELM_VER"` ; then
+  if ! `"$CACHE_DIR"/helm-"$HELM_VER" version --client=true | grep -q "$HELM_VER"` ; then
     echo -e "\nDownloading Helm Client binary..." && \
     curl -L https://get.helm.sh/helm-v"$HELM_VER"-linux-amd64.tar.gz -o "$CACHE_DIR"/helm-v"$HELM_VER"-linux-amd64.tar.gz && \
     tar xf "$CACHE_DIR"/helm-v"$HELM_VER"-linux-amd64.tar.gz -C "$CACHE_DIR" && \
