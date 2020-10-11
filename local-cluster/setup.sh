@@ -75,7 +75,7 @@ if ! `"$EXEC_DIR"/kubectl version --client=true 2>/dev/null | grep -q "$KUBECTL_
     curl -L https://storage.googleapis.com/kubernetes-release/release/v"$KUBECTL_VERSION"/bin/linux/amd64/kubectl -o "$CACHE_DIR"/kubectl && \
     chmod +x "$CACHE_DIR"/kubectl
   fi
-  if `"$SYS_WIDE"` ; then
+  if [[ "$SYS_WIDE" == "true" ]] ; then
     yes | sudo cp "$CACHE_DIR"/kubectl "$EXEC_DIR/kubectl" >/dev/null 2>&1
   fi
   echo -e "\nkubectl installed:" && \
@@ -131,7 +131,7 @@ if ! `"$EXEC_DIR"/helmfile -v 2>/dev/null | grep -q "$HELMFILE_VER"` ; then
     curl -L https://github.com/roboll/helmfile/releases/download/v"$HELMFILE_VER"/helmfile_linux_amd64 -o "$CACHE_DIR"/helmfile && \
     chmod +x "$CACHE_DIR"/helmfile
   fi
-  if `"$SYS_WIDE"` ; then
+  if [[ "$SYS_WIDE" == "true" ]] ; then
     yes | sudo cp "$CACHE_DIR"/helmfile "$EXEC_DIR"/helmfile >/dev/null 2>&1
   fi
   echo -e "\nInstalled:" && \
@@ -148,7 +148,7 @@ if ! `"$EXEC_DIR"/kind version 2>/dev/null | grep -q "$KIND_VERSION"` ; then
     curl -L https://github.com/kubernetes-sigs/kind/releases/download/v"$KIND_VERSION"/kind-$(uname)-amd64 -o "$CACHE_DIR"/kind && \
     chmod +x "$CACHE_DIR"/kind
   fi
-  if `"$SYS_WIDE"` ; then
+  if [[ "$SYS_WIDE" == "true" ]] ; then
     yes | sudo cp "$CACHE_DIR"/kind "$EXEC_DIR"/kind >/dev/null 2>&1
   fi
   echo -e "\nInstalled:" && \
