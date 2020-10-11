@@ -2,6 +2,8 @@
 
 Create and administer a local one or multi-node Kubernetes cluster(s) in Docker container(s) with properly configured Helm v2 (optionally `tillerless`), Ingress Controller, MetalLB, Metrics Server, and Kubernetes Dashboard with simple interactive commands.
 
+Optional components: Weave Scope, Docker Container Registry.
+
 ## Quick Start
 
 To create a local one or multi-node Kubernetes (K8s) cluster(s) - please run:
@@ -45,9 +47,10 @@ Example:
 
 Usage:
     --helm_ver,-hv      Set Helm version to be deployed.
+    --sys_wide,-sw      Install prerequisites system-wide.
     --help,-h           Prints this message.
 Example:
-    bash setup.sh -hv=2.16.12
+    bash setup.sh -hv=2.16.12 -sw
 ```
 
 ### Supported Optional Apps
@@ -85,16 +88,18 @@ Now you can access the Weave Scope Frontend at:
 
 The `setup.sh` can be used either like a true Shell script, or the commands which are part of it can be executed one by one. It depends on your preference.
 
-`setup.sh` downloads and installs the following software:
+It can be run multiple times. Changes are done only if needed.
 
-1. Linux Docker container runtime (`docker.io` or `docker-ce` pkg depending on your OS).
+By default `setup.sh` downloads and installs Docker Runtime OS package and the following binaries in self-contained `.cache` dir:
+
+1. Linux Docker Container Runtime (`docker.io` or `docker-ce` OS pkg).
 2. `kubectl` binary.
 3. `helm` binary.
-4. Helm plugins: `helm-diff` and `tiller`.
+4. Helm plugins: `helm-diff`.
 5. `helmfile` binary.
 6. `kind` binary.
 
-It can be run multiple times. Changes are done only if needed.
+With `--sys_wide` flag the aforementioned binaries will be installed system-wide (in `/usr/local/bin` dir).
 
 ## Credits
 
