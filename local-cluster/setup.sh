@@ -147,10 +147,10 @@ else
   "$EXEC_DIR"/helmfile -v
 fi
 
-# Install kINd
+# Install KinD
 if ! `"$EXEC_DIR"/kind version 2>/dev/null | grep -q "$KIND_VERSION"` ; then
   if ! `"$CACHE_DIR"/kind version 2>/dev/null | grep -q "$KIND_VERSION"` ; then
-    echo -e "\nDownloading kINd binary..." && \
+    echo -e "\nDownloading KinD binary..." && \
     curl -L https://github.com/kubernetes-sigs/kind/releases/download/v"$KIND_VERSION"/kind-$(uname)-amd64 -o "$CACHE_DIR"/kind-"$KIND_VERSION" && \
     chmod +x "$CACHE_DIR"/kind-"$KIND_VERSION"
     yes | cp "$CACHE_DIR"/kind-"$KIND_VERSION" "$CACHE_DIR"/kind
