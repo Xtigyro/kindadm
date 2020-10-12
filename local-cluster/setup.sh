@@ -113,6 +113,7 @@ if ! `"$EXEC_DIR"/helm version --client=true 2>/dev/null | grep -q "$HELM_VER"` 
 else
   echo -e "\nHelm present:" && \
   "$EXEC_DIR"/helm version --client=true
+  source <("$EXEC_DIR"/helm completion bash 2>/dev/null)
 fi
 
 # Install/update Helm plugins: "helm-diff", "tiller"
@@ -169,4 +170,5 @@ if ! `"$EXEC_DIR"/kind version 2>/dev/null | grep -q "$KIND_VERSION"` ; then
 else
   echo -e "\nPresent:" && \
   "$EXEC_DIR"/kind version
+  source <("$EXEC_DIR"/kind completion bash 2>/dev/null)
 fi
