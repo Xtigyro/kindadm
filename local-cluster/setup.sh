@@ -73,8 +73,11 @@ mkdir -p "$CACHE_DIR"
 if ! `"$EXEC_DIR"/kubectl version --client=true 2>/dev/null | grep -q "$KUBECTL_VERSION"` ; then
   if ! `"$CACHE_DIR"/kubectl version --client=true 2>/dev/null | grep -q "$KUBECTL_VERSION"` ; then
     echo -e "\nDownloading kubectl binary..." && \
-    curl -L https://storage.googleapis.com/kubernetes-release/release/v"$KUBECTL_VERSION"/bin/linux/amd64/kubectl -o "$CACHE_DIR"/kubectl && \
-    chmod +x "$CACHE_DIR"/kubectl
+    curl -L https://storage.googleapis.com/kubernetes-release/release/v"$KUBECTL_VERSION"/bin/linux/amd64/kubectl -o "$CACHE_DIR"/kubectl-"$KUBECTL_VERSION" && \
+    chmod +x "$CACHE_DIR"/kubectl-"$KUBECTL_VERSION"
+    yes | cp "$CACHE_DIR"/kubectl-"$KUBECTL_VERSION" "$CACHE_DIR"/kubectl
+  else
+    yes | cp "$CACHE_DIR"/kubectl-"$KUBECTL_VERSION" "$CACHE_DIR"/kubectl
   fi
   if [[ "$SYS_WIDE" == "true" ]] ; then
     yes | sudo cp "$CACHE_DIR"/kubectl "$EXEC_DIR/kubectl" >/dev/null 2>&1
@@ -131,8 +134,11 @@ fi
 if ! `"$EXEC_DIR"/helmfile -v 2>/dev/null | grep -q "$HELMFILE_VER"` ; then
   if ! `"$CACHE_DIR"/helmfile -v 2>/dev/null | grep -q "$HELMFILE_VER"` ; then
     echo -e "\nDownloading Helmfile binary..." && \
-    curl -L https://github.com/roboll/helmfile/releases/download/v"$HELMFILE_VER"/helmfile_linux_amd64 -o "$CACHE_DIR"/helmfile && \
-    chmod +x "$CACHE_DIR"/helmfile
+    curl -L https://github.com/roboll/helmfile/releases/download/v"$HELMFILE_VER"/helmfile_linux_amd64 -o "$CACHE_DIR"/helmfile-"$HELMFILE_VER" && \
+    chmod +x "$CACHE_DIR"/helmfile-"$HELMFILE_VER"
+    yes | cp "$CACHE_DIR"/helmfile-"$HELMFILE_VER" "$CACHE_DIR"/helmfile
+  else
+    yes | cp "$CACHE_DIR"/helmfile-"$HELMFILE_VER" "$CACHE_DIR"/helmfile
   fi
   if [[ "$SYS_WIDE" == "true" ]] ; then
     yes | sudo cp "$CACHE_DIR"/helmfile "$EXEC_DIR"/helmfile >/dev/null 2>&1
@@ -144,12 +150,15 @@ else
   "$EXEC_DIR"/helmfile -v
 fi
 
-# Install kINd
+# Install KinD
 if ! `"$EXEC_DIR"/kind version 2>/dev/null | grep -q "$KIND_VERSION"` ; then
   if ! `"$CACHE_DIR"/kind version 2>/dev/null | grep -q "$KIND_VERSION"` ; then
-    echo -e "\nDownloading kINd binary..." && \
-    curl -L https://github.com/kubernetes-sigs/kind/releases/download/v"$KIND_VERSION"/kind-$(uname)-amd64 -o "$CACHE_DIR"/kind && \
-    chmod +x "$CACHE_DIR"/kind
+    echo -e "\nDownloading KinD binary..." && \
+    curl -L https://github.com/kubernetes-sigs/kind/releases/download/v"$KIND_VERSION"/kind-$(uname)-amd64 -o "$CACHE_DIR"/kind-"$KIND_VERSION" && \
+    chmod +x "$CACHE_DIR"/kind-"$KIND_VERSION"
+    yes | cp "$CACHE_DIR"/kind-"$KIND_VERSION" "$CACHE_DIR"/kind
+  else
+    yes | cp "$CACHE_DIR"/kind-"$KIND_VERSION" "$CACHE_DIR"/kind
   fi
   if [[ "$SYS_WIDE" == "true" ]] ; then
     yes | sudo cp "$CACHE_DIR"/kind "$EXEC_DIR"/kind >/dev/null 2>&1
