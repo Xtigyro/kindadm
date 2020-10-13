@@ -15,8 +15,8 @@ cd local-cluster
 
 ## Extra args are optional.
 #
-bash setup.sh --helm_ver=3.[x].[x]
-bash kindadm.sh --nodes=[1-99] --k8s_ver=1.[x].[x]
+bash setup.sh
+bash kindadm.sh --nodes=[1-99]
 ```
 
 To purge interactively any created cluster(s):
