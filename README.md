@@ -11,9 +11,8 @@ To create a local one or multi-node Kubernetes (K8s) cluster(s) - please run:
 ```bash
 cd local-cluster
 
-## Extra args are optional.
+## extra args are optional.
 #
-bash setup.sh
 bash kindadm.sh --nodes=[1-99]
 ```
 
@@ -26,31 +25,24 @@ bash kindadm.sh --purge
 ## Helper Menu
 
 ```console
+# bash kindadm.sh -h
+
 Usage:
     --all-labelled,-al      Set labels on all K8s nodes.
     --all-tainted,-at       Set taints on all K8s nodes. A different label can be defined.
     --create-registry,-cr   Create local container registry for K8s cluster(s).
     --half-labelled,-hl     Set labels on half K8s nodes.
+    --helm_ver,-hv          Set Helm version to be installed.
     --half-tainted,-ht      Set taints on half K8s nodes. A different label can be defined.
     --k8s_ver,-v            Set K8s version to be deployed.
     --list-oa,-loa          List supported optional app(s).
     --nodes,-n              Set number of K8s nodes to be created.
     --opt-apps,-oa          Deploy supported optional app(s).
     --purge,-p              Purge interactively any existing cluster(s) and related resources.
+    --sys_wide,-sw          Install prerequisites system-wide.
     --help,-h               Prints this message.
 Example:
-    bash kindadm.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr
-```
-
-```console
-# bash setup.sh -h
-
-Usage:
-    --helm_ver,-hv      Set Helm version to be deployed.
-    --sys_wide,-sw      Install prerequisites system-wide.
-    --help,-h           Prints this message.
-Example:
-    bash setup.sh -hv=2.16.12 -sw
+    bash kindadm.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr -hv=2.16.12 -sw
 ```
 
 ### Supported Optional Apps
@@ -86,9 +78,7 @@ Now you can access the Weave Scope Frontend at:
 
 ## Prerequisite Notes
 
-The `setup.sh` can be run multiple times. Changes are done only if needed.
-
-By default it downloads and installs the following software:
+By default `kindadm` downloads and installs the following software:
 
 - System-wide:
 
