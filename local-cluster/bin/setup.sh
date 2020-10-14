@@ -137,6 +137,7 @@ if ! `"$EXEC_DIR"/kind version 2>/dev/null | grep -q "$KIND_VERSION"` ; then
   echo -e "\nInstalled:" && \
   "$EXEC_DIR"/kind version && \
   source <("$EXEC_DIR"/kind completion bash 2>/dev/null)
+  echo ""
 else
   echo -e "\nPresent:" && \
   "$EXEC_DIR"/kind version
