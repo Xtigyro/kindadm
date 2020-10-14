@@ -7,7 +7,8 @@ HELM_VER='3.3.1'
 LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
 NC='\033[0m'   # No Color
-CACHE_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 ; pwd -P )/.cache"
+SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 ; pwd -P )"
+CACHE_DIR="$SCRIPT_DIR/.cache"
 EXEC_DIR="$CACHE_DIR"
 KIND_CFG="$(<./templates/kind-base-config.yaml)"   # base config file
 K8S_CLUSTERS="$("$EXEC_DIR"/kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
@@ -15,7 +16,7 @@ SUPPORTED_OPT_APPS="$(ls -d helmfiles/apps/optional/*/ | cut -f4 -d'/')"
 NO_NODES='1'
 REG_NAME='kind-registry'
 
-SETUP_EXEC='bin/setup.sh'
+SETUP_EXEC="$SCRIPT_DIR/bin/setup.sh"
 SYS_WIDE=false
 
 # predefined functions
