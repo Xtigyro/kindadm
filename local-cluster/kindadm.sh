@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
+# default versions
 HELM_VER='3.3.1'
 
 LIGHT_GREEN='\033[1;32m'
