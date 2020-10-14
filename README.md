@@ -4,7 +4,7 @@ Create and administer a local one or multi-node Kubernetes cluster(s) in Docker 
 
 Optional components: [Weave Scope](https://www.weave.works/oss/scope/), [Docker Container Registry](https://docs.docker.com/registry/).
 
-> **NOTE**: Those of you who would like to use the automation with Helm v2 - please switch to branch `helm-v2`.
+> **NOTE**: Those of you who would like to use `kindadm` with Helm v2 - please switch to branch `helm-v2`.
 
 ## Quick Start
 
@@ -13,10 +13,9 @@ To create a local one or multi-node Kubernetes (K8s) cluster(s) - please run:
 ```bash
 cd local-cluster
 
-## Extra args are optional.
+## extra args are optional.
 #
-bash setup.sh
-bash kindadm.sh --nodes=[1-99]
+bash kindadm.sh --nodes=[1-99] --k8s_ver=1.[x].[x]
 ```
 
 To purge interactively any created cluster(s):
@@ -36,25 +35,16 @@ Usage:
     --create-registry,-cr   Create local container registry for K8s cluster(s).
     --half-labelled,-hl     Set labels on half K8s nodes.
     --half-tainted,-ht      Set taints on half K8s nodes. A different label can be defined.
+    --helm_ver,-hv          Set Helm version to be installed.
     --k8s_ver,-v            Set K8s version to be deployed.
     --list-oa,-loa          List supported optional app(s).
     --nodes,-n              Set number of K8s nodes to be created.
     --opt-apps,-oa          Deploy supported optional app(s).
     --purge,-p              Purge interactively any existing cluster(s) and related resources.
+    --sys_wide,-sw          Install prerequisites system-wide.
     --help,-h               Prints this message.
 Example:
-    bash kindadm.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr
-```
-
-```console
-# bash setup.sh -h
-
-Usage:
-    --helm_ver,-hv      Set Helm version to be deployed.
-    --sys_wide,-sw      Install prerequisites system-wide.
-    --help,-h           Prints this message.
-Example:
-    bash setup.sh -hv=3.3.1 -sw
+    bash kindadm.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr -hv=3.3.1 -sw
 ```
 
 ### Supported Optional Apps
@@ -90,9 +80,7 @@ Now you can access the Weave Scope Frontend at:
 
 ## Prerequisite Notes
 
-The `setup.sh` can be run multiple times. Changes are done only if needed.
-
-By default it downloads and installs the following software:
+By default `kindadm` downloads and installs the following software:
 
 - System-wide:
 
