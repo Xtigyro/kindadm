@@ -2,47 +2,20 @@
 set -e
 
 # default versions
-HELM_VER='3.3.1'
 HELM_PLUGIN_DIFF_VER='3.1.3'
 HELMFILE_VER='0.130.1'
 KIND_VERSION='0.9.0'
 KUBECTL_VERSION='1.19.2'
-CACHE_DIR="$(dirname "${BASH_SOURCE[0]}")/.cache"
-EXEC_DIR="$CACHE_DIR"
+
+# passed on vars
+HELM_VER="$1"
+SYS_WIDE="$2"
+CACHE_DIR="$3"
+EXEC_DIR="$4"
 
 LIGHT_GREEN='\033[1;32m'
 NC='\033[0m' # No Color
 
-
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --helm_ver=*|-hv=*)
-      if [[ "$1" != *=3.*.* ]]; then
-        printf "\nIncompatible Helm ver.\nSupported syntax/version: ${LIGHT_GREEN}3.[x].[x]${NC}\n"
-        exit 1
-      fi
-      HELM_VER="${1#*=}"
-      ;;
-    --sys_wide|-sw)
-      printf "\nInstalling prerequisite binaries and packages ${LIGHT_GREEN}system-wide${NC}.\n"
-      SYS_WIDE=true
-      EXEC_DIR='/usr/local/bin'
-      ;;
-    --help|-h)
-      printf "\nUsage:\
-        \n    ${LIGHT_GREEN}--helm_ver,-hv${NC}      Set Helm version to be deployed.\
-        \n    ${LIGHT_GREEN}--sys_wide,-sw${NC}      Install prerequisites system-wide.\
-        \n    ${LIGHT_GREEN}--help,-h${NC}           Prints this message.\
-        \nExample:\n    ${LIGHT_GREEN}bash $0 -hv=3.3.1 -sw${NC}\n"   # Flag argument
-      exit 0
-      ;;
-    *)
-      >&2 printf "\nError: ${LIGHT_GREEN}Invalid argument${NC}\n"
-      exit 2
-      ;;
-  esac
-  shift
-done
 
 # Install req. pkgs
 OS_ID=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
@@ -168,4 +141,5 @@ else
   echo -e "\nPresent:" && \
   "$EXEC_DIR"/kind version
   source <("$EXEC_DIR"/kind completion bash 2>/dev/null)
+  echo ""
 fi
