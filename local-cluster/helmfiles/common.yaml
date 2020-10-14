@@ -1,7 +1,8 @@
 helmDefaults:
   atomic: true
   timeout: 900
-  tillerless: true
+  force: true
+  verify: false
 
 repositories:
   - name: stable

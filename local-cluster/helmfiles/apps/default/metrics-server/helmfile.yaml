@@ -3,5 +3,4 @@
 releases:
   - name: metrics-server
     namespace: kube-system
-    tillerNamespace: kube-system
     <<: *bitnami

@@ -1,16 +1,23 @@
 #!/usr/bin/env bash
 set -e
 
+# default versions
+HELM_VER='2.16.12'
+
 LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
 NC='\033[0m'   # No Color
-CACHE_DIR="$(dirname "${BASH_SOURCE[0]}")/.cache"
+SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 ; pwd -P )"
+CACHE_DIR="$SCRIPT_DIR/.cache"
 EXEC_DIR="$CACHE_DIR"
 KIND_CFG="$(<./templates/kind-base-config.yaml)"   # base config file
 K8S_CLUSTERS="$("$EXEC_DIR"/kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
 SUPPORTED_OPT_APPS="$(ls -d helmfiles/apps/optional/*/ | cut -f4 -d'/')"
 NO_NODES='1'
 REG_NAME='kind-registry'
+
+SETUP_EXEC="$SCRIPT_DIR/bin/setup.sh"
+SYS_WIDE=false
 
 # predefined functions
 function contains_string {
@@ -168,20 +175,34 @@ while [ $# -gt 0 ]; do
         \n    ${LIGHT_GREEN}$SUPPORTED_OPT_APPS${NC}\n"
       exit 0
       ;;
+    --helm_ver=*|-hv=*)
+      if [[ "$1" != *=2.*.* ]]; then
+        printf "\nIncompatible Helm ver.\nSupported syntax/version: ${LIGHT_GREEN}2.[x].[x]${NC}\n"
+        exit 1
+      fi
+      HELM_VER="${1#*=}"
+      ;;
+    --sys_wide|-sw)
+      printf "\nInstalling prerequisite binaries and packages ${LIGHT_GREEN}system-wide${NC}.\n"
+      SYS_WIDE=true
+      EXEC_DIR='/usr/local/bin'
+      ;;
     --help|-h)
       printf "\nUsage:\
         \n    ${LIGHT_GREEN}--all-labelled,-al${NC}      Set labels on all K8s nodes.\
         \n    ${LIGHT_GREEN}--all-tainted,-at${NC}       Set taints on all K8s nodes. A different label can be defined.\
         \n    ${LIGHT_GREEN}--create-registry,-cr${NC}   Create local container registry for K8s cluster(s).\
         \n    ${LIGHT_GREEN}--half-labelled,-hl${NC}     Set labels on half K8s nodes.\
+        \n    ${LIGHT_GREEN}--helm_ver,-hv${NC}          Set Helm version to be installed.\
         \n    ${LIGHT_GREEN}--half-tainted,-ht${NC}      Set taints on half K8s nodes. A different label can be defined.\
         \n    ${LIGHT_GREEN}--k8s_ver,-v${NC}            Set K8s version to be deployed.\
         \n    ${LIGHT_GREEN}--list-oa,-loa${NC}          List supported optional app(s).\
         \n    ${LIGHT_GREEN}--nodes,-n${NC}              Set number of K8s nodes to be created.\
         \n    ${LIGHT_GREEN}--opt-apps,-oa${NC}          Deploy supported optional app(s).\
         \n    ${LIGHT_GREEN}--purge,-p${NC}              Purge interactively any existing cluster(s) and related resources.\
+        \n    ${LIGHT_GREEN}--sys_wide,-sw${NC}          Install prerequisites system-wide.\
         \n    ${LIGHT_GREEN}--help,-h${NC}               Prints this message.\
-        \nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr${NC}\n"   # Flag argument
+        \nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr -hv=2.16.12 -sw${NC}\n"   # Flag argument
       exit 0
       ;;
     *)
@@ -191,6 +212,9 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
+
+# set up prereqs
+bash "$SETUP_EXEC" "$HELM_VER" "$SYS_WIDE" "$CACHE_DIR" "$EXEC_DIR"
 
 if [[ -z "$K8S_VER" ]]; then
   KIND_CTRL_CFG=$'\n  - role: control-plane\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
@@ -235,8 +259,18 @@ fi
 # Init Helm
 "$EXEC_DIR"/helm init --service-account tiller
 
+# check Tiller readiness
+set +e; echo 'Waiting for Tiller to become ready...'; sleep 15
+"$EXEC_DIR"/helm list >/dev/null 2>&1
+while [ $? -ne 0 ] ; do
+  echo 'Another 15 sec...'
+  sleep 15
+  "$EXEC_DIR"/helm list >/dev/null 2>&1
+done
+set -e
+
 # Deploy default apps
-"$EXEC_DIR"/helmfile -f ./helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
+"$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
 
 # Deploy Kubernetes Dashboard Admin ClusterRoleBinding
 "$EXEC_DIR"/kubectl apply -f ./templates/k8s-dashboard-rolebinding.yaml
@@ -244,10 +278,10 @@ fi
 # Deploy conditionally optional apps
 if [[ ! -z "$OPT_APPS" ]]; then
   if [[ "$OPT_APPS" == "all" ]]; then
-    "$EXEC_DIR"/helmfile -f ./helmfiles/apps/optional/helmfile.yaml apply --concurrency 1 > /dev/null
+    "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/optional/helmfile.yaml apply --concurrency 1 > /dev/null
   else
     for app in "$OPT_APPS"; do
-      "$EXEC_DIR"/helmfile -f ./helmfiles/apps/optional/"$app"/helmfile.yaml apply --concurrency 1 > /dev/null
+      "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/optional/"$app"/helmfile.yaml apply --concurrency 1 > /dev/null
     done
   fi
 fi

@@ -3,5 +3,4 @@
 releases:
   - name: weave-scope
     namespace: weave
-    tillerNamespace: weave
     <<: *stable

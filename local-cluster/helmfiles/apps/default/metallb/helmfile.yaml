@@ -3,5 +3,4 @@
 releases:
   - name: metallb
     namespace: metallb-system
-    tillerNamespace: metallb-system
     <<: *bitnami

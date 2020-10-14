@@ -3,5 +3,4 @@
 releases:
   - name: nginx-ingress-controller
     namespace: ingress
-    tillerNamespace: ingress
     <<: *bitnami
