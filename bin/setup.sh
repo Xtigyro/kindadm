@@ -91,6 +91,9 @@ fi
 # Install/update Helm plugins: "helm-diff"
 if ! `"$EXEC_DIR"/helm plugin list | xargs -L1 | grep -q $'diff '$HELM_PLUGIN_DIFF_VER$''` ; then
   echo -e "\nInstalling/updating Helm plugins: helm-diff..."
+  if [[ "$HELM_VER" == 2.*.* ]]; then
+    mkdir -p "$("$EXEC_DIR"/helm home)/plugins"
+  fi
   set +e; "$EXEC_DIR"/helm plugin remove diff >/dev/null 2>&1; set -e
   "$EXEC_DIR"/helm plugin install https://github.com/databus23/helm-diff --version="$HELM_PLUGIN_DIFF_VER" >/dev/null 2>&1 || \
   "$EXEC_DIR"/helm plugin update diff >/dev/null
