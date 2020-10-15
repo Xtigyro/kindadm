@@ -2,5 +2,5 @@
 
 releases:
   - name: metrics-server
-    namespace: kube-system
+    namespace: metrics-server
     <<: *bitnami

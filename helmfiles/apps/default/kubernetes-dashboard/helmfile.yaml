@@ -3,5 +3,5 @@
 releases:
   - name: kubernetes-dashboard
     chart: kubernetes-dashboard/kubernetes-dashboard
-    namespace: kube-system
+    namespace: kubernetes-dashboard
     <<: *common

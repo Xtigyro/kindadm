@@ -3,6 +3,8 @@ set -e
 
 # default versions
 HELM_VER='3.3.1'
+HELM_VER_3='3.3.1'
+HELM_VER_2='2.16.12'
 
 LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
@@ -45,6 +47,26 @@ function contains_strings_from_strings {
     fi
   done
   return "$result"
+}
+
+function create_k8s_ns {
+# create required K8s namespaces for apps
+  if [[ "$1" == "all" ]] && [[ ! -z "$1" ]]; then
+    local k8s_ns=($(grep -r 'namespace: ' ./helmfiles/apps/optional/*/helmfile.yaml | cut -d ':' -f2 | tr -d ' '))
+  elif [[ "$1" != "all" ]] && [[ ! -z "$1" ]]; then
+    local k8s_ns=($(grep 'namespace: ' ./helmfiles/apps/optional/"$1"/helmfile.yaml | cut -d ':' -f2 | tr -d ' '))
+  else
+    local k8s_ns=($(grep -r 'namespace: ' ./helmfiles/apps/default/*/helmfile.yaml | cut -d ':' -f3 | tr -d ' '))
+  fi
+  local unique_k8s_ns=($(tr ' ' '\n' <<< "${k8s_ns[@]}" | tr '\n' ' '))
+
+  for ((i=0;i<="${#unique_k8s_ns[@]}";i++)); do
+    if [[ -n "${unique_k8s_ns[i]}" ]] ; then
+      set +e; kubectl create namespace "${unique_k8s_ns[i]}" 2>/dev/null; set -e
+    else
+      break
+    fi
+  done
 }
 
 function purge_clusters {
@@ -176,11 +198,14 @@ while [ $# -gt 0 ]; do
         create_reg
       ;;
     --helm_ver=*|-hv=*)
-      if [[ "$1" != *=3.*.* ]]; then
-        printf "\nIncompatible Helm ver.\nSupported syntax/version: ${LIGHT_GREEN}3.[x].[x]${NC}\n"
+      if [[ "$1" != *=2 ]] && [[ "$1" != *=2.*.* ]] && [[ "$1" != *=3 ]] && [[ "$1" != *=3.*.* ]]; then
+        printf "\nIncompatible Helm ver.\nSupported syntax/version: ${LIGHT_GREEN}2${NC} / ${LIGHT_GREEN}3${NC} / ${LIGHT_GREEN}2.[x].[x]${NC} / ${LIGHT_GREEN}3.[x].[x]${NC}\n"
         exit 1
+      else
+        if [[ "$1" == *=3.*.* ]] || [[ "$1" == *=2.*.* ]]; then HELM_VER="${1#*=}"
+        elif [[ "$1" == *=3 ]]; then HELM_VER="$HELM_VER_3"
+        elif [[ "$1" == *=2 ]]; then HELM_VER="$HELM_VER_2"; fi
       fi
-      HELM_VER="${1#*=}"
       ;;
     --sys_wide|-sw)
       printf "\nInstalling prerequisite binaries and packages ${LIGHT_GREEN}system-wide${NC}.\n"
@@ -202,7 +227,7 @@ while [ $# -gt 0 ]; do
         \n    ${LIGHT_GREEN}--purge,-p${NC}              Purge interactively any existing cluster(s) and related resources.\
         \n    ${LIGHT_GREEN}--sys_wide,-sw${NC}          Install prerequisites system-wide.\
         \n    ${LIGHT_GREEN}--help,-h${NC}               Prints this message.\
-        \nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr -hv=3.3.1 -sw${NC}\n"   # Flag argument
+        \nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr -hv=2 -sw${NC}\n"   # Flag argument
       exit 0
       ;;
     *)
@@ -252,7 +277,27 @@ if [[ ! -z "$REG_CFG" ]]; then
   conn_to_kind_netw
 fi
 
+if [[ "$HELM_VER" == 2.*.* ]]; then
+  # Adjust Tiller K8s permissions
+  "$EXEC_DIR"/kubectl create serviceaccount --namespace kube-system tiller
+  "$EXEC_DIR"/kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+
+  # Init Helm
+  "$EXEC_DIR"/helm init --service-account tiller
+
+  # check Tiller readiness
+  set +e; echo 'Waiting for Tiller to become ready...'; sleep 15
+  "$EXEC_DIR"/helm list >/dev/null 2>&1
+  while [ $? -ne 0 ] ; do
+    echo 'Another 15 sec...'
+    sleep 15
+    "$EXEC_DIR"/helm list >/dev/null 2>&1
+  done
+  set -e
+fi
+
 # Deploy default apps
+create_k8s_ns
 "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
 
 # Deploy Kubernetes Dashboard Admin ClusterRoleBinding
@@ -261,9 +306,11 @@ fi
 # Deploy conditionally optional apps
 if [[ ! -z "$OPT_APPS" ]]; then
   if [[ "$OPT_APPS" == "all" ]]; then
+    create_k8s_ns "$OPT_APPS"
     "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/optional/helmfile.yaml apply --concurrency 1 > /dev/null
   else
     for app in "$OPT_APPS"; do
+      create_k8s_ns "$app"
       "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/optional/"$app"/helmfile.yaml apply --concurrency 1 > /dev/null
     done
   fi
