@@ -4,8 +4,6 @@ Create and administer a local one or multi-node Kubernetes cluster(s) in Docker 
 
 Optional components: [Weave Scope](https://www.weave.works/oss/scope/), [Docker Container Registry](https://docs.docker.com/registry/).
 
-> **NOTE**: Those of you who would like to use `kindadm` with Helm v2 - please switch to branch `helm-v2`.
-
 ## Quick Start
 
 To create a local one or multi-node Kubernetes (K8s) cluster(s) - please run:
@@ -13,7 +11,7 @@ To create a local one or multi-node Kubernetes (K8s) cluster(s) - please run:
 ```bash
 ## extra args are optional.
 #
-bash kindadm.sh --nodes=[1-99] --k8s_ver=1.[x].[x]
+bash kindadm.sh --nodes=[1-99] --k8s_ver=1.[x].[x] --helm_ver=[2/3].[x].[x]
 ```
 
 To purge interactively any created cluster(s):
@@ -42,7 +40,7 @@ Usage:
     --sys_wide,-sw          Install prerequisites system-wide.
     --help,-h               Prints this message.
 Example:
-    bash kindadm.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr -hv=3.3.1 -sw
+    bash kindadm.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr -hv=2 -sw
 ```
 
 ### Supported Optional Apps
