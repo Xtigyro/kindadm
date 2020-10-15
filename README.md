@@ -1,6 +1,6 @@
 # kindadm
 
-Create and administer a local one or multi-node Kubernetes cluster(s) in Docker container(s) with properly configured [Helm v3](https://github.com/helm/helm), [Ingress Controller](https://github.com/kubernetes/ingress-nginx), [MetalLB](https://github.com/metallb/metallb), [Metrics Server](https://github.com/kubernetes-sigs/metrics-server), and [Kubernetes Dashboard](https://github.com/kubernetes/dashboard) with simple interactive commands.
+Create and administer a local one or multi-node Kubernetes cluster(s) in Docker container(s) with properly configured [Helm](https://github.com/helm/helm), [Ingress Controller](https://github.com/kubernetes/ingress-nginx), [MetalLB](https://github.com/metallb/metallb), [Metrics Server](https://github.com/kubernetes-sigs/metrics-server), and [Kubernetes Dashboard](https://github.com/kubernetes/dashboard) with simple interactive commands.
 
 Optional components: [Weave Scope](https://www.weave.works/oss/scope/), [Docker Container Registry](https://docs.docker.com/registry/).
 
