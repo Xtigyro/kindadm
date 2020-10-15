@@ -11,8 +11,6 @@ Optional components: [Weave Scope](https://www.weave.works/oss/scope/), [Docker 
 To create a local one or multi-node Kubernetes (K8s) cluster(s) - please run:
 
 ```bash
-cd local-cluster
-
 ## extra args are optional.
 #
 bash kindadm.sh --nodes=[1-99] --k8s_ver=1.[x].[x]
