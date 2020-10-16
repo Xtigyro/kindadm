@@ -22,11 +22,11 @@ OS_ID=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
 
 if [ "$OS_ID" == "\"centos\"" ] || [ "$OS_ID" == "\"rhel\"" ] ; then
   if ! `sudo rpm -q docker-ce curl >/dev/null 2>&1` ; then
-    sudo yum install -y docker-ce curl
+    sudo yum install -y docker-ce curl wget
   fi
 elif [ "$OS_ID" == "ubuntu" ] || [ "$OS_ID" == "debian" ] ; then
   if ! `sudo dpkg -l docker.io curl >/dev/null 2>&1` ; then
-    sudo apt update && apt install -y docker.io curl
+    sudo apt update && apt install -y docker.io curl wget
   fi
 else
     echo "Use "${0}" only on RHEL / CentOS / Ubuntu / Debian"

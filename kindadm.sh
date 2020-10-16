@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 # default versions
 HELM_VER='3.3.1'
@@ -171,11 +171,14 @@ while [ $# -gt 0 ]; do
       fi
       ;;
     --k8s_ver=*|-v=*)
-      if [[ "$1" != *=1.*.* ]]; then
-        printf "\nIncompatible K8s node ver.\nCorrect syntax/version: ${LIGHT_GREEN}1.[x].[x]${NC}\n"
+      declare -A k8s_vers_avail="$(wget -q https://registry.hub.docker.com/v1/repositories/kindest/node/tags -O - | sed -e 's/[][]//g' -e 's/"//g' -e 's/ //g' | tr '}' '\n' | awk -F: '{print $3}' | tr -d 'v')"
+      if [[ -n "${k8s_vers_avail["${1#*=}"]}" ]]; then
+        printf "\nIncompatible K8s node ver.\nCorrect syntax/version: ${LIGHT_GREEN}$k8s_vers_avail${NC}\n"
         exit 7
       fi
       K8S_VER="${1#*=}"
+      echo $K8S_VER
+      exit 11
       ;;
     --purge|-p)
       purge_clusters
