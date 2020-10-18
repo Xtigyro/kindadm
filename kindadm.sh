@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 
 # default versions
 HELM_VER='3.3.1'
 HELM_VER_3='3.3.1'
 HELM_VER_2='2.16.12'
 
+# define vars
+K8S_VER="false"
+OPT_APPS="false"
+REG_CFG="false"
+COEFFICIENT_LABEL="false"
+COEFFICIENT_TAINT="false"
+NODE_LABEL="false"
+NODE_TAINT_LABEL="false"
 LIGHT_GREEN='\033[1;32m'
 LIGHT_RED='\033[1;31m'
 NC='\033[0m'   # No Color
@@ -51,16 +59,16 @@ function contains_strings_from_strings {
 
 function create_k8s_ns {
 # create required K8s namespaces for apps
-  if [[ "$1" == "all" ]] && [[ ! -z "$1" ]]; then
+  if [[ "$1" == 'all' ]]; then
     local k8s_ns=($(grep -r 'namespace: ' ./helmfiles/apps/optional/*/helmfile.yaml | cut -d ':' -f2 | tr -d ' '))
-  elif [[ "$1" != "all" ]] && [[ ! -z "$1" ]]; then
+  elif [[ "$1" != 'all' ]] && [[ "$1" != 'default' ]]; then
     local k8s_ns=($(grep 'namespace: ' ./helmfiles/apps/optional/"$1"/helmfile.yaml | cut -d ':' -f2 | tr -d ' '))
   else
     local k8s_ns=($(grep -r 'namespace: ' ./helmfiles/apps/default/*/helmfile.yaml | cut -d ':' -f3 | tr -d ' '))
   fi
   local unique_k8s_ns=($(tr ' ' '\n' <<< "${k8s_ns[@]}" | tr '\n' ' '))
 
-  for ((i=0;i<="${#unique_k8s_ns[@]}";i++)); do
+  for ((i=0;i<"${#unique_k8s_ns[@]}";i++)); do
     if [[ -n "${unique_k8s_ns[i]}" ]] ; then
       set +e; kubectl create namespace "${unique_k8s_ns[i]}" 2>/dev/null; set -e
     else
@@ -129,7 +137,7 @@ function conn_to_kind_netw {
       NEEDS_CONNECT="false"
     fi
   done
-  if [ "${NEEDS_CONNECT}" = "true" ]; then
+  if [ "${NEEDS_CONNECT}" == "true" ]; then
     docker network connect kind "${REG_NAME}" 2>/dev/null || true
   fi
 }
@@ -210,7 +218,7 @@ while [ $# -gt 0 ]; do
       fi
       ;;
     --sys_wide|-sw)
-      printf "\nInstalling prerequisite binaries and packages ${LIGHT_GREEN}system-wide${NC}.\n"
+      printf "\nInstalling prerequisites ${LIGHT_GREEN}system-wide${NC}.\n"
       SYS_WIDE=true
       EXEC_DIR='/usr/local/bin'
       ;;
@@ -243,7 +251,7 @@ done
 # set up prereqs
 bash "$SETUP_EXEC" "$HELM_VER" "$SYS_WIDE" "$CACHE_DIR" "$EXEC_DIR"
 
-if [[ -z "$K8S_VER" ]]; then
+if [[ "$K8S_VER" == 'false' ]]; then
   KIND_CTRL_CFG=$'\n  - role: control-plane\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
   KIND_WRKR_CFG=$'\n  - role: worker\n    extraMounts:\n      - hostPath: /var/run/docker.sock\n        containerPath: /var/run/docker.sock'
 else
@@ -267,14 +275,14 @@ for (( i=0; i<"${NO_NODES_CREATE}"; ++i));
     KIND_CFG="${KIND_CFG}${KIND_WRKR_CFG}"
   done
 
-if [[ ! -z "$REG_CFG" ]]; then
+if [[ "$REG_CFG" != 'false' ]]; then
   KIND_CFG="${KIND_CFG}${REG_CFG}"
 fi
 
 # Create KinD cluster
 "$EXEC_DIR"/kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
 
-if [[ ! -z "$REG_CFG" ]]; then
+if [[ "$REG_CFG" != 'false' ]]; then
   "$EXEC_DIR"/kubectl apply -f templates/registry/kind-reg-configmap.yaml
   conn_to_kind_netw
 fi
@@ -299,14 +307,14 @@ if [[ "$HELM_VER" == 2.*.* ]]; then
 fi
 
 # Deploy default apps
-create_k8s_ns
+create_k8s_ns "default"
 "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
 
 # Deploy Kubernetes Dashboard Admin ClusterRoleBinding
 "$EXEC_DIR"/kubectl apply -f ./templates/k8s-dashboard-rolebinding.yaml
 
 # Deploy conditionally optional apps
-if [[ ! -z "$OPT_APPS" ]]; then
+if [[ "$OPT_APPS" != 'false' ]]; then
   if [[ "$OPT_APPS" == "all" ]]; then
     create_k8s_ns "$OPT_APPS"
     "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/optional/helmfile.yaml apply --concurrency 1 > /dev/null
@@ -323,7 +331,7 @@ CLUSTER_WRKS=$("$EXEC_DIR"/kubectl get nodes | tail -n +2 | cut -d' ' -f1)
 IFS=$'\n' CLUSTER_WRKS=(${CLUSTER_WRKS})
 
 # Put node labels
-if [[ ! -z "$COEFFICIENT_LABEL" ]]; then
+if [[ "$COEFFICIENT_LABEL" != 'false' ]]; then
   NO_NODES_LABELLED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_LABEL" | awk '{printf("%d\n",$1 + 0.5)}')"
   for ((i=1;i<="$NO_NODES_LABELLED";i++)); do
       "$EXEC_DIR"/kubectl label node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL"
@@ -331,10 +339,10 @@ if [[ ! -z "$COEFFICIENT_LABEL" ]]; then
 fi
 
 # Taint nodes with "NoExecute"
-if [[ ! -z "$COEFFICIENT_TAINT" ]]; then
+if [[ "$COEFFICIENT_TAINT" != 'false' ]]; then
   NO_NODES_TAINTED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_TAINT" | awk '{printf("%d\n",$1 + 0.5)}')"
   for ((i=1;i<="$NO_NODES_TAINTED";i++)); do
-      if [[ ! -z "$NODE_LABEL" ]] && [[ -z "$NODE_TAINT_LABEL" ]] ; then
+      if [[ "$NODE_LABEL" != 'false' ]] && [[ "$NODE_TAINT_LABEL" == 'false' ]] ; then
         "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL":NoExecute
       else
         "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_TAINT_LABEL":NoExecute
