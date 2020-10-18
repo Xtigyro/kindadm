@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -eu
 
 # default versions
 HELM_PLUGIN_DIFF_VER='3.1.3'
@@ -13,6 +13,7 @@ SYS_WIDE="$2"
 CACHE_DIR="$3"
 EXEC_DIR="$4"
 
+# define vars
 LIGHT_GREEN='\033[1;32m'
 NC='\033[0m' # No Color
 
@@ -147,3 +148,5 @@ else
   source <("$EXEC_DIR"/kind completion bash 2>/dev/null)
   echo ""
 fi
+
+echo -e "${LIGHT_GREEN}✓${NC} kindadm prerequisites - ${LIGHT_GREEN}ready${NC}.\n"
