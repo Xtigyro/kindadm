@@ -148,3 +148,5 @@ else
   source <("$EXEC_DIR"/kind completion bash 2>/dev/null)
   echo ""
 fi
+
+echo -e "${LIGHT_GREEN}✓${NC} kindadm prerequisites - ${LIGHT_GREEN}ready${NC}.\n"

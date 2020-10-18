@@ -105,7 +105,8 @@ function create_reg {
   if [ "${running}" != 'true' ]; then
     docker run \
       -d --restart=always -p "${REG_PORT}:5000" --name "${REG_NAME}" \
-      registry:2
+      registry:2 >/dev/null
+    echo -e "\n${LIGHT_GREEN}✓${NC} Docker Container Registry - ${LIGHT_GREEN}started${NC}.\n"
   fi
 }
 
@@ -118,9 +119,9 @@ function rm_reg {
           Yes ) echo "$yn";
             if [ "${running}" == 'true' ]; then
               docker rm -f "${REG_NAME}" >/dev/null
-              echo -e "Local Container Registry - ${LIGHT_GREEN}purged${NC}."
+              echo -e "${LIGHT_GREEN}✓${NC} Local Container Registry - ${LIGHT_GREEN}purged${NC}."
             else
-              echo -e "${LIGHT_GREEN}No local registry found.${NC}"
+              echo -e "${LIGHT_GREEN}✓${NC} No local registry found."
             fi
             break;;
           No ) echo "$yn";
@@ -205,7 +206,6 @@ while [ $# -gt 0 ]; do
     --create-registry|-cr)
         REG_PORT='5000'
         REG_CFG="$(<./templates/registry/kind-reg-cfg-patches.yaml)"   # Local Registry KinD patches
-        create_reg
       ;;
     --helm_ver=*|-hv=*)
       if [[ "$1" != *=2 ]] && [[ "$1" != *=2.*.* ]] && [[ "$1" != *=3 ]] && [[ "$1" != *=3.*.* ]]; then
@@ -282,21 +282,46 @@ fi
 # Create KinD cluster
 "$EXEC_DIR"/kind create cluster --config <(echo "${KIND_CFG}") --name kind-"${NO_NODES}"
 
+# Get node names
+CLUSTER_WRKS=$("$EXEC_DIR"/kubectl get nodes | tail -n +2 | cut -d' ' -f1)
+IFS=$'\n' CLUSTER_WRKS=(${CLUSTER_WRKS})
+
+# Put node labels
+if [[ "$COEFFICIENT_LABEL" != 'false' ]]; then
+  NO_NODES_LABELLED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_LABEL" | awk '{printf("%d\n",$1 + 0.5)}')"
+  for ((i=1;i<="$NO_NODES_LABELLED";i++)); do
+      "$EXEC_DIR"/kubectl label node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL" >/dev/null 2>&1
+  done
+fi
+
+# Taint nodes with "NoExecute"
+if [[ "$COEFFICIENT_TAINT" != 'false' ]]; then
+  NO_NODES_TAINTED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_TAINT" | awk '{printf("%d\n",$1 + 0.5)}')"
+  for ((i=1;i<="$NO_NODES_TAINTED";i++)); do
+      if [[ "$NODE_LABEL" != 'false' ]] && [[ "$NODE_TAINT_LABEL" == 'false' ]] ; then
+        "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL":NoExecute >/dev/null 2>&1
+      else
+        "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_TAINT_LABEL":NoExecute >/dev/null 2>&1
+      fi
+  done
+fi
+
 if [[ "$REG_CFG" != 'false' ]]; then
-  "$EXEC_DIR"/kubectl apply -f templates/registry/kind-reg-configmap.yaml
+  create_reg
+  "$EXEC_DIR"/kubectl apply -f templates/registry/kind-reg-configmap.yaml >/dev/null 2>&1
   conn_to_kind_netw
 fi
 
 if [[ "$HELM_VER" == 2.*.* ]]; then
   # Adjust Tiller K8s permissions
-  "$EXEC_DIR"/kubectl create serviceaccount --namespace kube-system tiller
-  "$EXEC_DIR"/kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+  "$EXEC_DIR"/kubectl create serviceaccount --namespace kube-system tiller >/dev/null 2>&1
+  "$EXEC_DIR"/kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller >/dev/null 2>&1
 
   # Init Helm
   "$EXEC_DIR"/helm init --service-account tiller
 
   # check Tiller readiness
-  set +e; echo 'Waiting for Tiller to become ready...'; sleep 15
+  set +e; echo -e '\nWaiting for Tiller to become ready...'; sleep 15
   "$EXEC_DIR"/helm list >/dev/null 2>&1
   while [ $? -ne 0 ] ; do
     echo 'Another 15 sec...'
@@ -304,17 +329,21 @@ if [[ "$HELM_VER" == 2.*.* ]]; then
     "$EXEC_DIR"/helm list >/dev/null 2>&1
   done
   set -e
+  echo -e "\n${LIGHT_GREEN}✓${NC} Tiller Server - ${LIGHT_GREEN}deployed and ready${NC}."
 fi
 
 # Deploy default apps
+echo -e "\n${LIGHT_GREEN}Deploying default apps...${NC}"
 create_k8s_ns "default"
 "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
+echo -e "${LIGHT_GREEN}✓${NC} Default apps - ${LIGHT_GREEN}deployed${NC}."
 
 # Deploy Kubernetes Dashboard Admin ClusterRoleBinding
-"$EXEC_DIR"/kubectl apply -f ./templates/k8s-dashboard-rolebinding.yaml
+"$EXEC_DIR"/kubectl apply -f ./templates/k8s-dashboard-rolebinding.yaml >/dev/null 2>&1
 
 # Deploy conditionally optional apps
 if [[ "$OPT_APPS" != 'false' ]]; then
+  echo -e "\n${LIGHT_GREEN}Deploying optional apps...${NC}"
   if [[ "$OPT_APPS" == "all" ]]; then
     create_k8s_ns "$OPT_APPS"
     "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/optional/helmfile.yaml apply --concurrency 1 > /dev/null
@@ -324,28 +353,5 @@ if [[ "$OPT_APPS" != 'false' ]]; then
       "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/optional/"$app"/helmfile.yaml apply --concurrency 1 > /dev/null
     done
   fi
-fi
-
-# Get node names
-CLUSTER_WRKS=$("$EXEC_DIR"/kubectl get nodes | tail -n +2 | cut -d' ' -f1)
-IFS=$'\n' CLUSTER_WRKS=(${CLUSTER_WRKS})
-
-# Put node labels
-if [[ "$COEFFICIENT_LABEL" != 'false' ]]; then
-  NO_NODES_LABELLED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_LABEL" | awk '{printf("%d\n",$1 + 0.5)}')"
-  for ((i=1;i<="$NO_NODES_LABELLED";i++)); do
-      "$EXEC_DIR"/kubectl label node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL"
-  done
-fi
-
-# Taint nodes with "NoExecute"
-if [[ "$COEFFICIENT_TAINT" != 'false' ]]; then
-  NO_NODES_TAINTED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_TAINT" | awk '{printf("%d\n",$1 + 0.5)}')"
-  for ((i=1;i<="$NO_NODES_TAINTED";i++)); do
-      if [[ "$NODE_LABEL" != 'false' ]] && [[ "$NODE_TAINT_LABEL" == 'false' ]] ; then
-        "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL":NoExecute
-      else
-        "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_TAINT_LABEL":NoExecute
-      fi
-  done
+  echo -e "${LIGHT_GREEN}✓${NC} Optional apps - ${LIGHT_GREEN}deployed${NC}."
 fi
