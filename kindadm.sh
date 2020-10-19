@@ -60,11 +60,11 @@ function contains_strings_from_strings {
 function create_k8s_ns {
 # create required K8s namespaces for apps
   if [[ "$1" == 'all' ]]; then
-    local k8s_ns=($(grep -r 'namespace: ' ./helmfiles/apps/optional/*/helmfile.yaml | cut -d ':' -f2 | tr -d ' '))
+    local k8s_ns=($(grep -r 'namespace: ' "$SCRIPT_DIR"/helmfiles/apps/optional/*/helmfile.yaml | cut -d ':' -f2 | tr -d ' '))
   elif [[ "$1" != 'all' ]] && [[ "$1" != 'default' ]]; then
-    local k8s_ns=($(grep 'namespace: ' ./helmfiles/apps/optional/"$1"/helmfile.yaml | cut -d ':' -f2 | tr -d ' '))
+    local k8s_ns=($(grep 'namespace: ' "$SCRIPT_DIR"/helmfiles/apps/optional/"$1"/helmfile.yaml | cut -d ':' -f2 | tr -d ' '))
   else
-    local k8s_ns=($(grep -r 'namespace: ' ./helmfiles/apps/default/*/helmfile.yaml | cut -d ':' -f3 | tr -d ' '))
+    local k8s_ns=($(grep -r 'namespace: ' "$SCRIPT_DIR"/helmfiles/apps/default/*/helmfile.yaml | cut -d ':' -f3 | tr -d ' '))
   fi
   local unique_k8s_ns=($(tr ' ' '\n' <<< "${k8s_ns[@]}" | tr '\n' ' '))
 
@@ -335,7 +335,7 @@ fi
 # Deploy default apps
 echo -e "\n${LIGHT_GREEN}Deploying default apps...${NC}"
 create_k8s_ns "default"
-"$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
+"$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f "$SCRIPT_DIR"/helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
 echo -e "${LIGHT_GREEN}\u2713${NC} Default apps - ${LIGHT_GREEN}deployed${NC}."
 
 # Deploy Kubernetes Dashboard Admin ClusterRoleBinding
@@ -346,11 +346,11 @@ if [[ "$OPT_APPS" != 'false' ]]; then
   echo -e "\n${LIGHT_GREEN}Deploying optional apps...${NC}"
   if [[ "$OPT_APPS" == "all" ]]; then
     create_k8s_ns "$OPT_APPS"
-    "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/optional/helmfile.yaml apply --concurrency 1 > /dev/null
+    "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f "$SCRIPT_DIR"/helmfiles/apps/optional/helmfile.yaml apply --concurrency 1 > /dev/null
   else
     for app in "$OPT_APPS"; do
       create_k8s_ns "$app"
-      "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/optional/"$app"/helmfile.yaml apply --concurrency 1 > /dev/null
+      "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f "$SCRIPT_DIR"/helmfiles/apps/optional/"$app"/helmfile.yaml apply --concurrency 1 > /dev/null
     done
   fi
   echo -e "${LIGHT_GREEN}\u2713${NC} Optional apps - ${LIGHT_GREEN}deployed${NC}."
