@@ -22,12 +22,24 @@ NC='\033[0m' # No Color
 OS_ID=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
 
 if [ "$OS_ID" == "\"centos\"" ] || [ "$OS_ID" == "\"rhel\"" ] ; then
-  if ! `sudo rpm -q docker-ce curl >/dev/null 2>&1` ; then
-    sudo yum install -y docker-ce curl wget
+  if ! `command -v docker >/dev/null 2>&1` ; then
+    sudo yum install -y docker-ce
+  fi
+  if ! `command -v curl >/dev/null 2>&1` ; then
+    sudo yum install -y curl
+  fi
+  if ! `command -v wget >/dev/null 2>&1` ; then
+    sudo yum install -y wget
   fi
 elif [ "$OS_ID" == "ubuntu" ] || [ "$OS_ID" == "debian" ] ; then
-  if ! `sudo dpkg -l docker.io curl >/dev/null 2>&1` ; then
-    sudo apt update && apt install -y docker.io curl wget
+  if ! `command -v docker >/dev/null 2>&1` ; then
+    sudo apt update && sudo apt install -y docker.io
+  fi
+  if ! `command -v curl >/dev/null 2>&1` ; then
+    sudo apt update && sudo apt install -y curl
+  fi
+  if ! `command -v wget >/dev/null 2>&1` ; then
+    sudo apt update && sudo apt install -y wget
   fi
 else
     echo "Use "${0}" only on RHEL / CentOS / Ubuntu / Debian"

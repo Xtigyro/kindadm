@@ -333,7 +333,7 @@ if [[ "$HELM_VER" == 2.*.* ]]; then
 fi
 
 # Deploy default apps
-echo -e "\n${LIGHT_GREEN}Deploying default apps...${NC}"
+echo -e "${LIGHT_GREEN}Deploying default apps...${NC}"
 create_k8s_ns "default"
 "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f "$SCRIPT_DIR"/helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
 echo -e "${LIGHT_GREEN}\u2713${NC} Default apps - ${LIGHT_GREEN}deployed${NC}."
