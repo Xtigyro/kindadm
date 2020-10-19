@@ -92,7 +92,7 @@ By default `kindadm` downloads and installs the following software:
 
 With `--sys_wide` flag the aforementioned binaries will be installed system-wide (in `/usr/local/bin` dir).
 
-Changes are applied only if needed.
+> **NOTE**: Changes are applied only if needed.
 
 ## Credits
 
