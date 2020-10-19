@@ -22,7 +22,7 @@ CACHE_DIR="$SCRIPT_DIR/.cache"
 EXEC_DIR="$CACHE_DIR"
 KIND_CFG="$(<"$SCRIPT_DIR"/templates/kind-base-config.yaml)"   # base config file
 K8S_CLUSTERS="$("$EXEC_DIR"/kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
-SUPPORTED_OPT_APPS="$(ls -d "$SCRIPT_DIR"/helmfiles/apps/optional/*/ | cut -f4 -d'/')"
+SUPPORTED_OPT_APPS="$(ls -d "$SCRIPT_DIR"/helmfiles/apps/optional/*/ | rev | cut -f2 -d'/' | rev)"
 NO_NODES='1'
 REG_NAME='kind-registry'
 
@@ -333,7 +333,7 @@ if [[ "$HELM_VER" == 2.*.* ]]; then
 fi
 
 # Deploy default apps
-echo -e "${LIGHT_GREEN}Deploying default apps...${NC}"
+echo -e "\n${LIGHT_GREEN}Deploying default apps...${NC}"
 create_k8s_ns "default"
 "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f "$SCRIPT_DIR"/helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
 echo -e "${LIGHT_GREEN}\u2713${NC} Default apps - ${LIGHT_GREEN}deployed${NC}."
