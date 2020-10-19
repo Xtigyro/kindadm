@@ -22,7 +22,7 @@ CACHE_DIR="$SCRIPT_DIR/.cache"
 EXEC_DIR="$CACHE_DIR"
 KIND_CFG="$(<"$SCRIPT_DIR"/templates/kind-base-config.yaml)"   # base config file
 K8S_CLUSTERS="$("$EXEC_DIR"/kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
-SUPPORTED_OPT_APPS="$(ls -d helmfiles/apps/optional/*/ | cut -f4 -d'/')"
+SUPPORTED_OPT_APPS="$(ls -d "$SCRIPT_DIR"/helmfiles/apps/optional/*/ | cut -f4 -d'/')"
 NO_NODES='1'
 REG_NAME='kind-registry'
 
