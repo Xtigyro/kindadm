@@ -149,4 +149,4 @@ else
   echo ""
 fi
 
-echo -e "${LIGHT_GREEN}✓${NC} kindadm prerequisites - ${LIGHT_GREEN}ready${NC}.\n"
+echo -e "${LIGHT_GREEN}\u2713${NC} kindadm prerequisites - ${LIGHT_GREEN}ready${NC}.\n"

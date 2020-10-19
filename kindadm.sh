@@ -20,13 +20,13 @@ NC='\033[0m'   # No Color
 SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 ; pwd -P )"
 CACHE_DIR="$SCRIPT_DIR/.cache"
 EXEC_DIR="$CACHE_DIR"
-KIND_CFG="$(<./templates/kind-base-config.yaml)"   # base config file
+KIND_CFG="$(<"$SCRIPT_DIR"/templates/kind-base-config.yaml)"   # base config file
 K8S_CLUSTERS="$("$EXEC_DIR"/kind get clusters 2>/dev/null | tr '\n' ' ' | sed 's/[[:blank:]]*$//')"
 SUPPORTED_OPT_APPS="$(ls -d helmfiles/apps/optional/*/ | cut -f4 -d'/')"
 NO_NODES='1'
 REG_NAME='kind-registry'
 
-SETUP_EXEC="$SCRIPT_DIR/bin/setup.sh"
+SETUP_EXEC="$SCRIPT_DIR"/bin/setup.sh
 SYS_WIDE=false
 
 # predefined functions
@@ -106,7 +106,7 @@ function create_reg {
     docker run \
       -d --restart=always -p "${REG_PORT}:5000" --name "${REG_NAME}" \
       registry:2 >/dev/null
-    echo -e "\n${LIGHT_GREEN}✓${NC} Docker Container Registry - ${LIGHT_GREEN}started${NC}.\n"
+    echo -e "\n${LIGHT_GREEN}\u2713${NC} Docker Container Registry - ${LIGHT_GREEN}started${NC}.\n"
   fi
 }
 
@@ -119,9 +119,9 @@ function rm_reg {
           Yes ) echo "$yn";
             if [ "${running}" == 'true' ]; then
               docker rm -f "${REG_NAME}" >/dev/null
-              echo -e "${LIGHT_GREEN}✓${NC} Local Container Registry - ${LIGHT_GREEN}purged${NC}."
+              echo -e "${LIGHT_GREEN}\u2713${NC} Local Container Registry - ${LIGHT_GREEN}purged${NC}."
             else
-              echo -e "${LIGHT_GREEN}✓${NC} No local registry found."
+              echo -e "${LIGHT_RED}\u2717${NC} No local registry found."
             fi
             break;;
           No ) echo "$yn";
@@ -205,7 +205,7 @@ while [ $# -gt 0 ]; do
       ;;
     --create-registry|-cr)
         REG_PORT='5000'
-        REG_CFG="$(<./templates/registry/kind-reg-cfg-patches.yaml)"   # Local Registry KinD patches
+        REG_CFG="$(<"$SCRIPT_DIR"/templates/registry/kind-reg-cfg-patches.yaml)"   # Local Registry KinD patches
       ;;
     --helm_ver=*|-hv=*)
       if [[ "$1" != *=2 ]] && [[ "$1" != *=2.*.* ]] && [[ "$1" != *=3 ]] && [[ "$1" != *=3.*.* ]]; then
@@ -308,7 +308,7 @@ fi
 
 if [[ "$REG_CFG" != 'false' ]]; then
   create_reg
-  "$EXEC_DIR"/kubectl apply -f templates/registry/kind-reg-configmap.yaml >/dev/null 2>&1
+  "$EXEC_DIR"/kubectl apply -f "$SCRIPT_DIR"/templates/registry/kind-reg-configmap.yaml >/dev/null 2>&1
   conn_to_kind_netw
 fi
 
@@ -329,17 +329,17 @@ if [[ "$HELM_VER" == 2.*.* ]]; then
     "$EXEC_DIR"/helm list >/dev/null 2>&1
   done
   set -e
-  echo -e "\n${LIGHT_GREEN}✓${NC} Tiller Server - ${LIGHT_GREEN}deployed and ready${NC}."
+  echo -e "\n${LIGHT_GREEN}\u2713${NC} Tiller Server - ${LIGHT_GREEN}deployed and ready${NC}."
 fi
 
 # Deploy default apps
 echo -e "\n${LIGHT_GREEN}Deploying default apps...${NC}"
 create_k8s_ns "default"
 "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/default/helmfile.yaml apply --concurrency 1 > /dev/null
-echo -e "${LIGHT_GREEN}✓${NC} Default apps - ${LIGHT_GREEN}deployed${NC}."
+echo -e "${LIGHT_GREEN}\u2713${NC} Default apps - ${LIGHT_GREEN}deployed${NC}."
 
 # Deploy Kubernetes Dashboard Admin ClusterRoleBinding
-"$EXEC_DIR"/kubectl apply -f ./templates/k8s-dashboard-rolebinding.yaml >/dev/null 2>&1
+"$EXEC_DIR"/kubectl apply -f "$SCRIPT_DIR"/templates/k8s-dashboard-rolebinding.yaml >/dev/null 2>&1
 
 # Deploy conditionally optional apps
 if [[ "$OPT_APPS" != 'false' ]]; then
@@ -353,5 +353,5 @@ if [[ "$OPT_APPS" != 'false' ]]; then
       "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f ./helmfiles/apps/optional/"$app"/helmfile.yaml apply --concurrency 1 > /dev/null
     done
   fi
-  echo -e "${LIGHT_GREEN}✓${NC} Optional apps - ${LIGHT_GREEN}deployed${NC}."
+  echo -e "${LIGHT_GREEN}\u2713${NC} Optional apps - ${LIGHT_GREEN}deployed${NC}."
 fi
