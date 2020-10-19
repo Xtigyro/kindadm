@@ -80,7 +80,7 @@ By default `kindadm` downloads and installs the following software:
 
 - System-wide:
 
-1. Linux Docker Container Runtime (`docker.io` or `docker-ce` OS pkg).
+1. Linux Docker Container Runtime.
 
 - In self-contained `.cache` dir:
 
@@ -91,6 +91,8 @@ By default `kindadm` downloads and installs the following software:
 5. `kind` binary.
 
 With `--sys_wide` flag the aforementioned binaries will be installed system-wide (in `/usr/local/bin` dir).
+
+Changes are applied only if needed.
 
 ## Credits
 
