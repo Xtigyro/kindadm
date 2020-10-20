@@ -35,22 +35,28 @@ fi
 if ! `command -v docker >/dev/null 2>&1` ; then
   if [[ "$INSTALL_CMD" != 'false' ]] ; then
     echo -e "\n${LIGHT_RED}\u2717 \"Docker Runtime\"${NC} not installed.\nPlease run: ${LIGHT_GREEN}sudo $INSTALL_CMD install -y $DOCKER_PKG${NC}"
+    exit 11
   else
     echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"Docker Runtime\"${NC}."
+    exit 11
   fi
 fi
 if ! `command -v curl >/dev/null 2>&1` ; then
   if [[ "$INSTALL_CMD" != 'false' ]] ; then
     echo -e "\n${LIGHT_RED}\u2717 \"curl\"${NC} not installed.\nPlease run: ${LIGHT_GREEN}sudo $INSTALL_CMD install -y curl${NC}"
+    exit 11
   else
     echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"curl\"${NC}."
+    exit 11
   fi
 fi
 if ! `command -v wget >/dev/null 2>&1` ; then
   if [[ "$INSTALL_CMD" != 'false' ]] ; then
     echo -e "\n${LIGHT_RED}\u2717 \"wget\"${NC} not installed.\nPlease run: ${LIGHT_GREEN}sudo $INSTALL_CMD install -y wget${NC}"
+    exit 11
   else
     echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"wget\"${NC}."
+    exit 11
   fi
 fi
 
