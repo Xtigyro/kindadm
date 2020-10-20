@@ -15,35 +15,43 @@ EXEC_DIR="$4"
 
 # define vars
 LIGHT_GREEN='\033[1;32m'
+LIGHT_RED='\033[1;31m'
 NC='\033[0m' # No Color
+INSTALL_CMD='false'
+DOCKER_PKG='false'
 
 
-# Install req. pkgs
+# Check req. pkgs
 OS_ID=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
 
 if [ "$OS_ID" == "\"centos\"" ] || [ "$OS_ID" == "\"rhel\"" ] ; then
-  if ! `command -v docker >/dev/null 2>&1` ; then
-    sudo yum install -y docker-ce
-  fi
-  if ! `command -v curl >/dev/null 2>&1` ; then
-    sudo yum install -y curl
-  fi
-  if ! `command -v wget >/dev/null 2>&1` ; then
-    sudo yum install -y wget
-  fi
+  INSTALL_CMD='yum'
+  DOCKER_PKG='docker-ce'
 elif [ "$OS_ID" == "ubuntu" ] || [ "$OS_ID" == "debian" ] ; then
-  if ! `command -v docker >/dev/null 2>&1` ; then
-    sudo apt update && sudo apt install -y docker.io
+  INSTALL_CMD='apt'
+  DOCKER_PKG='docker.io'
+fi
+
+if ! `command -v docker >/dev/null 2>&1` ; then
+  if [[ "$INSTALL_CMD" != 'false' ]] ; then
+    echo -e "\n${LIGHT_RED}\u2717 \"Docker Runtime\"${NC} not installed.\nPlease run: ${LIGHT_GREEN}sudo $INSTALL_CMD install -y $DOCKER_PKG${NC}"
+  else
+    echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"Docker Runtime\"${NC}."
   fi
-  if ! `command -v curl >/dev/null 2>&1` ; then
-    sudo apt update && sudo apt install -y curl
+fi
+if ! `command -v curl >/dev/null 2>&1` ; then
+  if [[ "$INSTALL_CMD" != 'false' ]] ; then
+    echo -e "\n${LIGHT_RED}\u2717 \"curl\"${NC} not installed.\nPlease run: ${LIGHT_GREEN}sudo $INSTALL_CMD install -y curl${NC}"
+  else
+    echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"curl\"${NC}."
   fi
-  if ! `command -v wget >/dev/null 2>&1` ; then
-    sudo apt update && sudo apt install -y wget
+fi
+if ! `command -v wget >/dev/null 2>&1` ; then
+  if [[ "$INSTALL_CMD" != 'false' ]] ; then
+    echo -e "\n${LIGHT_RED}\u2717 \"wget\"${NC} not installed.\nPlease run: ${LIGHT_GREEN}sudo $INSTALL_CMD install -y wget${NC}"
+  else
+    echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"wget\"${NC}."
   fi
-else
-    echo "Use "${0}" only on RHEL / CentOS / Ubuntu / Debian"
-    exit 3
 fi
 
 # Unmask and start Docker service
