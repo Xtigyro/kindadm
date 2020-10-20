@@ -76,13 +76,13 @@ Now you can access the Weave Scope Frontend at:
 
 ## Prerequisite Notes
 
-By default `kindadm` downloads and installs the following software:
+By default `kindadm` checks and advises on the following software:
 
-- System-wide:
+- System-wide (no install):
 
 1. Linux Docker Container Runtime.
 
-- In self-contained `.cache` dir:
+- Installs in self-contained `.cache` dir:
 
 1. `kubectl` binary.
 2. `helm` binary.
