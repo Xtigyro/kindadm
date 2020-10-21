@@ -74,7 +74,7 @@ Now you can access the Weave Scope Frontend at:
 
 [`http://localhost:80`](http://localhost:80).
 
-## Prerequisite Notes
+## Prerequisites
 
 By default `kindadm` does the following:
 
