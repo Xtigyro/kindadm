@@ -237,7 +237,7 @@ while [ $# -gt 0 ]; do
         \n    ${LIGHT_GREEN}--purge,-p${NC}              Purge interactively any existing cluster(s) and related resources.\
         \n    ${LIGHT_GREEN}--sys_wide,-sw${NC}          Install prerequisites system-wide.\
         \n    ${LIGHT_GREEN}--help,-h${NC}               Prints this message.\
-        \nExample:\n    ${LIGHT_GREEN}bash $0 -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr -hv=2 -sw${NC}\n"   # Flag argument
+        \nExample:\n    ${LIGHT_GREEN}kindadm -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr -hv=2 -sw${NC}\n"   # Flag argument
       exit 0
       ;;
     *)

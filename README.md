@@ -23,7 +23,7 @@ bash kindadm.sh --purge
 ## Helper Menu
 
 ```console
-# bash kindadm.sh -h
+# kindadm -h
 
 Usage:
     --all-labelled,-al      Set labels on all K8s nodes.
@@ -40,7 +40,7 @@ Usage:
     --sys_wide,-sw          Install prerequisites system-wide.
     --help,-h               Prints this message.
 Example:
-    bash kindadm.sh -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr -hv=2 -sw
+    kindadm -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr -hv=2 -sw
 ```
 
 ### Supported Optional Apps

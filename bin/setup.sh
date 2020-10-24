@@ -32,6 +32,26 @@ elif [ "$OS_ID" == "ubuntu" ] || [ "$OS_ID" == "debian" ] ; then
   DOCKER_PKG='docker.io'
 fi
 
+# prerequisite os pkgs
+REQPKGS=("$DOCKER_PKG" curl wget bash)
+REQBINS=(docker curl wget bash)
+
+for ((i=0;i<"${REQPKGS[@]}";i++)); do
+  if ! `command -v docker >/dev/null 2>&1` ; then
+    if [[ "$INSTALL_CMD" != 'false' ]] ; then
+      echo -e "\n${LIGHT_RED}\u2717 \"Docker Runtime\"${NC} not installed.\nPlease run: ${LIGHT_GREEN}sudo $INSTALL_CMD install -y $DOCKER_PKG${NC}"
+    else
+      echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"Docker Runtime\"${NC}."
+    fi
+  fi
+
+    if yum -q list installed "$pkg" > /dev/null 2>&1; then
+        echo -e "$pkg is already installed"
+    else
+        yum install "$pkg" -y && echo "Successfully installed $pkg"
+    fi
+done
+
 if ! `command -v docker >/dev/null 2>&1` ; then
   if [[ "$INSTALL_CMD" != 'false' ]] ; then
     echo -e "\n${LIGHT_RED}\u2717 \"Docker Runtime\"${NC} not installed.\nPlease run: ${LIGHT_GREEN}sudo $INSTALL_CMD install -y $DOCKER_PKG${NC}"
