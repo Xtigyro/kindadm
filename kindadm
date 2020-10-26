@@ -292,7 +292,7 @@ if [[ "$COEFFICIENT_LABEL" != 'false' ]]; then
   for ((i=1;i<="$NO_NODES_LABELLED";i++)); do
       "$EXEC_DIR"/kubectl label node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL" >/dev/null 2>&1
   done
-  echo -e "\n${LIGHT_GREEN}\u2713${NC} Cluster nodes - ${LIGHT_GREEN}labelled${NC}.\n"
+  echo -e "\n${LIGHT_GREEN}\u2713${NC} Cluster nodes - ${LIGHT_GREEN}labelled${NC}."
 fi
 
 # Taint nodes with "NoExecute"
@@ -305,7 +305,7 @@ if [[ "$COEFFICIENT_TAINT" != 'false' ]]; then
         "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_TAINT_LABEL":NoExecute >/dev/null 2>&1
       fi
   done
-  echo -e "\n${LIGHT_GREEN}\u2713${NC} Cluster nodes - ${LIGHT_GREEN}tainted${NC}.\n"
+  echo -e "\n${LIGHT_GREEN}\u2713${NC} Cluster nodes - ${LIGHT_GREEN}tainted${NC}."
 fi
 
 if [[ "$REG_CFG" != 'false' ]]; then
