@@ -74,15 +74,15 @@ Now you can access the Weave Scope Frontend at:
 
 [`http://localhost:80`](http://localhost:80).
 
-## Prerequisite Notes
+## Prerequisites
 
-By default `kindadm` checks and advises on the following software:
+By default `kindadm` does the following:
 
-- System-wide (no install):
+- Checks and advises (no install) on the system-wide prerequisites:
 
 1. Linux Docker Container Runtime.
 
-- Installs in self-contained `.cache` dir:
+- Checks and installs in a self-contained `.cache` dir:
 
 1. `kubectl` binary.
 2. `helm` binary.

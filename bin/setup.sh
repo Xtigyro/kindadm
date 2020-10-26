@@ -58,6 +58,7 @@ if ! `command -v docker >/dev/null 2>&1` ; then
   else
     echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"Docker Runtime\"${NC}."
   fi
+  exit 11
 fi
 if ! `command -v curl >/dev/null 2>&1` ; then
   if [[ "$INSTALL_CMD" != 'false' ]] ; then
@@ -65,6 +66,7 @@ if ! `command -v curl >/dev/null 2>&1` ; then
   else
     echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"curl\"${NC}."
   fi
+  exit 11
 fi
 if ! `command -v wget >/dev/null 2>&1` ; then
   if [[ "$INSTALL_CMD" != 'false' ]] ; then
@@ -72,6 +74,7 @@ if ! `command -v wget >/dev/null 2>&1` ; then
   else
     echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"wget\"${NC}."
   fi
+  exit 11
 fi
 
 # Unmask and start Docker service
