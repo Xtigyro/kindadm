@@ -241,12 +241,20 @@ while [ $# -gt 0 ]; do
       exit 0
       ;;
     *)
-      >&2 printf "\nError: ${LIGHT_GREEN}Invalid argument${NC}\n"
+      >&2 printf "\nError: ${LIGHT_RED}Invalid argument${NC}\n"
       exit 8
       ;;
   esac
   shift
 done
+
+# validate definitions of req. variables
+if [[ "$COEFFICIENT_TAINT" != 'false' ]]; then
+  if [[ "$NODE_LABEL" == 'false' && "$NODE_TAINT_LABEL" == 'false' ]] ; then
+    printf "\nError: ${LIGHT_RED}Define node or taint label.${NC}\n"
+    exit 11
+  fi
+fi
 
 # set up prereqs
 bash "$SETUP_EXEC" "$HELM_VER" "$SYS_WIDE" "$CACHE_DIR" "$EXEC_DIR"
@@ -299,7 +307,7 @@ fi
 if [[ "$COEFFICIENT_TAINT" != 'false' ]]; then
   NO_NODES_TAINTED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_TAINT" | awk '{printf("%d\n",$1 + 0.5)}')"
   for ((i=1;i<="$NO_NODES_TAINTED";i++)); do
-      if [[ "$NODE_LABEL" != 'false' ]] && [[ "$NODE_TAINT_LABEL" == 'false' ]] ; then
+      if [[ "$NODE_LABEL" != 'false' && "$NODE_TAINT_LABEL" == 'false' ]] ; then
         "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL":NoExecute >/dev/null 2>&1
       else
         "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_TAINT_LABEL":NoExecute >/dev/null 2>&1
