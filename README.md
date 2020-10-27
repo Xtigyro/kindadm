@@ -11,13 +11,13 @@ To create a local one or multi-node Kubernetes (K8s) cluster(s) - please run:
 ```bash
 ## extra args are optional.
 #
-bash kindadm.sh --nodes=[1-99] --k8s_ver=1.[x].[x] --helm_ver=[2/3].[x].[x]
+kindadm --nodes=[1-99] --k8s_ver=1.[x].[x] --helm_ver=[2/3].[x].[x]
 ```
 
 To purge interactively any created cluster(s):
 
 ```bash
-bash kindadm.sh --purge
+kindadm --purge
 ```
 
 ## Helper Menu
