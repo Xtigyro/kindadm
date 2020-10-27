@@ -2,8 +2,8 @@
 set -eu
 
 # default versions
+HELMFILE_VER='0.132.1'
 HELM_PLUGIN_DIFF_VER='3.1.3'
-HELMFILE_VER='0.130.3'
 KIND_VERSION='0.9.0'
 KUBECTL_VERSION='1.19.2'
 
@@ -19,7 +19,7 @@ LIGHT_RED='\033[1;31m'
 NC='\033[0m' # No Color
 INSTALL_CMD='false'
 DOCKER_PKG='false'
-
+REQ_BINS=(docker curl wget bash)
 
 # Check req. pkgs
 OS_ID=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
@@ -32,30 +32,17 @@ elif [ "$OS_ID" == "ubuntu" ] || [ "$OS_ID" == "debian" ] ; then
   DOCKER_PKG='docker.io'
 fi
 
-if ! `command -v docker >/dev/null 2>&1` ; then
-  if [[ "$INSTALL_CMD" != 'false' ]] ; then
-    echo -e "\n${LIGHT_RED}\u2717 \"Docker Runtime\"${NC} not installed.\nPlease run: ${LIGHT_GREEN}sudo $INSTALL_CMD install -y $DOCKER_PKG${NC}"
-  else
-    echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"Docker Runtime\"${NC}."
+# check and advise on missing prerequisite os pkgs
+REQ_PKGS=("$DOCKER_PKG" curl wget bash)
+for ((i=0;i<"${#REQ_BINS[@]}";i++)); do
+  if ! `command -v "${REQ_BINS[i]}" >/dev/null 2>&1` ; then
+    if [[ "$INSTALL_CMD" != 'false' ]] ; then
+      echo -e "\n${LIGHT_RED}\u2717 \"${REQ_PKGS[i]}\"${NC} not installed.\nPlease run: ${LIGHT_GREEN}sudo $INSTALL_CMD install -y "${REQ_PKGS[i]}"${NC}"
+    else
+      echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"${REQ_BINS[i]}\"${NC}."
+    fi
   fi
-  exit 11
-fi
-if ! `command -v curl >/dev/null 2>&1` ; then
-  if [[ "$INSTALL_CMD" != 'false' ]] ; then
-    echo -e "\n${LIGHT_RED}\u2717 \"curl\"${NC} not installed.\nPlease run: ${LIGHT_GREEN}sudo $INSTALL_CMD install -y curl${NC}"
-  else
-    echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"curl\"${NC}."
-  fi
-  exit 11
-fi
-if ! `command -v wget >/dev/null 2>&1` ; then
-  if [[ "$INSTALL_CMD" != 'false' ]] ; then
-    echo -e "\n${LIGHT_RED}\u2717 \"wget\"${NC} not installed.\nPlease run: ${LIGHT_GREEN}sudo $INSTALL_CMD install -y wget${NC}"
-  else
-    echo -e "\n${LIGHT_RED}\u2717${NC} Please install ${LIGHT_RED}\"wget\"${NC}."
-  fi
-  exit 11
-fi
+done
 
 # Unmask and start Docker service
 sudo systemctl is-active --quiet docker || \
