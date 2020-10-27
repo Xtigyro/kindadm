@@ -2,9 +2,9 @@
 set -eu
 
 # default versions
-HELM_VER='3.3.1'
-HELM_VER_3='3.3.1'
-HELM_VER_2='2.16.12'
+HELM_VER='3.4.0'
+HELM_VER_3='3.4.0'
+HELM_VER_2='2.17.0'
 
 # define vars
 K8S_VER="false"
@@ -77,13 +77,41 @@ function create_k8s_ns {
   done
 }
 
+# Custom `select` implementation that allows *empty* input.
+function selectWithDefault {
+
+  local item i=0 numItems=$#
+
+  # Print numbered menu items, based on the arguments passed.
+  for item; do         # Short for: for item in "$@"; do
+    printf '%s\n' "$((++i))) $item"
+  done >&2 # Print to stderr, as `select` does.
+
+  # Prompt the user for the index of the desired item.
+  while :; do
+    printf %s "${PS3-#? }" >&2 # Print the prompt string to stderr, as `select` does.
+    read -r index
+    # Make sure that the input is either empty or that a valid index was entered.
+    [[ -z $index ]] && index=1  # empty input
+    (( index >= 1 && index <= numItems )) 2>/dev/null || { echo "Invalid selection. Please try again." >&2; continue; }
+    break
+  done
+
+  # Output the selected item, if any.
+  [[ -n $index ]] && printf %s "${@: index:1}"
+}
+
 function purge_clusters {
-  select choice in "ALL_CLUSTERS" "PER_CLUSTER"; do
+  echo -e "Purge ALL clusters or PER cluster (default: ${LIGHT_GREEN}'ALL'${NC})?"
+  optionsPurge=('ALL' 'PER')
+  choice="$(selectWithDefault "${optionsPurge[@]}")"
+
+  # Process the selected item.
   case "$choice" in
-    ALL_CLUSTERS ) echo "$choice";
+    ''|'ALL' ) echo -e "${LIGHT_GREEN}${choice}${NC}";
       IFS='\n' declare -g clusters=(${K8S_CLUSTERS});
-      break;;
-    PER_CLUSTER ) echo "$choice";
+      ;;
+    'PER' ) echo -e "${LIGHT_GREEN}${choice}${NC}";
       echo "Which cluster to purge?";
       read -p "[ ${K8S_CLUSTERS} ]: " K8S_CLUSTER;
       if ! `contains_string "${K8S_CLUSTERS}" "$K8S_CLUSTER"`; then
@@ -91,12 +119,8 @@ function purge_clusters {
         exit 3
       fi
       declare -g clusters=("$K8S_CLUSTER");
-      break;;
-    * ) echo "'ALL_CLUSTERS' or 'PER_CLUSTER' must be chosen.";
-      exit 4;
-      break;;
+      ;;
   esac
-  done
 }
 
 function create_reg {
@@ -113,21 +137,23 @@ function create_reg {
 function rm_reg {
   # conditionally remove registry container
   running="$(docker inspect -f '{{.State.Running}}' "${REG_NAME}" 2>/dev/null || true)"
-  echo -e "\nPurge the local Container Registry for K8s cluster(s)?"
-  select yn in "Yes" "No"; do
-      case $yn in
-          Yes ) echo "$yn";
-            if [ "${running}" == 'true' ]; then
-              docker rm -f "${REG_NAME}" >/dev/null
-              echo -e "${LIGHT_GREEN}\u2713${NC} Local Container Registry - ${LIGHT_GREEN}purged${NC}."
-            else
-              echo -e "${LIGHT_RED}\u2717${NC} No local registry found."
-            fi
-            break;;
-          No ) echo "$yn";
-            break;;
-      esac
-  done
+  echo -e "\nPurge the local Container Registry for K8s cluster(s) (default: ${LIGHT_GREEN}'YES'${NC})?"
+  optionsRmReg=('YES' 'NO')
+  choice="$(selectWithDefault "${optionsRmReg[@]}")"
+
+  # Process the selected item.
+  case "$choice" in
+    ''|'YES' ) echo -e "${LIGHT_GREEN}${choice}${NC}";
+      if [ "${running}" == 'true' ]; then
+        docker rm -f "${REG_NAME}" >/dev/null
+        echo -e "${LIGHT_GREEN}\u2713${NC} Local Container Registry - ${LIGHT_GREEN}purged${NC}."
+      else
+        echo -e "${LIGHT_RED}\u2717${NC} No local registry found."
+      fi
+      ;;
+    'NO' ) echo -e "${LIGHT_RED}${choice}${NC}";
+      ;;
+  esac
 }
 
 function conn_to_kind_netw {
@@ -251,7 +277,7 @@ done
 # validate definitions of req. variables
 if [[ "$COEFFICIENT_TAINT" != 'false' ]]; then
   if [[ "$NODE_LABEL" == 'false' && "$NODE_TAINT_LABEL" == 'false' ]] ; then
-    printf "\nError: ${LIGHT_RED}Define node or taint label.${NC}\n"
+    printf "\nError: ${LIGHT_RED}Specify node or taint label.${NC}\n"
     exit 11
   fi
 fi
@@ -307,7 +333,7 @@ fi
 if [[ "$COEFFICIENT_TAINT" != 'false' ]]; then
   NO_NODES_TAINTED="$(bc -l <<<"${#CLUSTER_WRKS[@]} * $COEFFICIENT_TAINT" | awk '{printf("%d\n",$1 + 0.5)}')"
   for ((i=1;i<="$NO_NODES_TAINTED";i++)); do
-      if [[ "$NODE_LABEL" != 'false' && "$NODE_TAINT_LABEL" == 'false' ]] ; then
+      if [[ "$NODE_TAINT_LABEL" == 'false' ]] ; then
         "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_LABEL":NoExecute >/dev/null 2>&1
       else
         "$EXEC_DIR"/kubectl taint node "${CLUSTER_WRKS[(i-1)]}" "$NODE_TAINT_LABEL":NoExecute >/dev/null 2>&1
