@@ -368,6 +368,9 @@ if [[ "$HELM_VER" == 2.*.* ]]; then
   echo -e "\n${LIGHT_GREEN}\u2713${NC} Tiller Server - ${LIGHT_GREEN}deployed and ready${NC}."
 fi
 
+# Get KinD network
+export KINDADM_KIND_NETW_SHORT=$(docker network inspect kind -f "{{(index .IPAM.Config 0).Subnet}}" | cut -d '.' -f1,2)
+
 # Deploy default apps
 echo -e "\n${LIGHT_GREEN}Deploying default apps...${NC}"
 create_k8s_ns "default"

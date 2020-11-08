@@ -3,4 +3,4 @@ configInline:
   - name: default
     protocol: layer2
     addresses:
-    - 172.17.0.1-172.17.255.255
+    - {{ requiredEnv "KINDADM_KIND_NETW_SHORT" }}.0.1-{{ requiredEnv "KINDADM_KIND_NETW_SHORT" }}.255.255
