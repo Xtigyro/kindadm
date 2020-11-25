@@ -3,4 +3,5 @@
 releases:
   - name: nginx-ingress-controller
     namespace: ingress
+    version: 6.0.0
     <<: *bitnami

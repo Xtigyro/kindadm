@@ -1,0 +1,8 @@
+{{ readFile "../../../common.yaml" }}
+
+releases:
+  - name: kubernetes-dashboard
+    chart: kubernetes-dashboard/kubernetes-dashboard
+    version: 3.0.0
+    namespace: kubernetes-dashboard
+    <<: *common

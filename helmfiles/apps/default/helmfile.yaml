@@ -1,2 +1,2 @@
 helmfiles:
-  - ./*/helmfile.yaml
+  - ./*/helmfile-{{ requiredEnv "KINDADM_KIND_HELM_ENV" }}.yaml

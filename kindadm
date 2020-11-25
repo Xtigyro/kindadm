@@ -3,6 +3,7 @@ set -eu
 
 # default versions
 HELM_VER='3.4.1'
+export KINDADM_KIND_HELM_ENV='v3'
 HELM_VER_3='3.4.1'
 HELM_VER_2='2.17.0'
 
@@ -60,11 +61,11 @@ function contains_strings_from_strings {
 function create_k8s_ns {
 # create required K8s namespaces for apps
   if [[ "$1" == 'all' ]]; then
-    local k8s_ns=($(grep -r 'namespace: ' "$SCRIPT_DIR"/helmfiles/apps/optional/*/helmfile.yaml | cut -d ':' -f2 | tr -d ' '))
+    local k8s_ns=($(grep -r 'namespace: ' "$SCRIPT_DIR"/helmfiles/apps/optional/*/helmfile-"$KINDADM_KIND_HELM_ENV".yaml | cut -d ':' -f2 | tr -d ' '))
   elif [[ "$1" != 'all' ]] && [[ "$1" != 'default' ]]; then
-    local k8s_ns=($(grep 'namespace: ' "$SCRIPT_DIR"/helmfiles/apps/optional/"$1"/helmfile.yaml | cut -d ':' -f2 | tr -d ' '))
+    local k8s_ns=($(grep 'namespace: ' "$SCRIPT_DIR"/helmfiles/apps/optional/"$1"/helmfile-"$KINDADM_KIND_HELM_ENV".yaml | cut -d ':' -f2 | tr -d ' '))
   else
-    local k8s_ns=($(grep -r 'namespace: ' "$SCRIPT_DIR"/helmfiles/apps/default/*/helmfile.yaml | cut -d ':' -f3 | tr -d ' '))
+    local k8s_ns=($(grep -r 'namespace: ' "$SCRIPT_DIR"/helmfiles/apps/default/*/helmfile-"$KINDADM_KIND_HELM_ENV".yaml | cut -d ':' -f3 | tr -d ' '))
   fi
   local unique_k8s_ns=($(tr ' ' '\n' <<< "${k8s_ns[@]}" | tr '\n' ' '))
 
@@ -349,6 +350,9 @@ if [[ "$REG_CFG" != 'false' ]]; then
 fi
 
 if [[ "$HELM_VER" == 2.*.* ]]; then
+  # Set Helm var for helmfile
+  export KINDADM_KIND_HELM_ENV='v2'
+
   # Adjust Tiller K8s permissions
   "$EXEC_DIR"/kubectl create serviceaccount --namespace kube-system tiller >/dev/null 2>&1
   "$EXEC_DIR"/kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller >/dev/null 2>&1
@@ -389,7 +393,7 @@ if [[ "$OPT_APPS" != 'false' ]]; then
   else
     for app in "$OPT_APPS"; do
       create_k8s_ns "$app"
-      "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f "$SCRIPT_DIR"/helmfiles/apps/optional/"$app"/helmfile.yaml apply --concurrency 1 > /dev/null
+      "$EXEC_DIR"/helmfile -b "$EXEC_DIR"/helm -f "$SCRIPT_DIR"/helmfiles/apps/optional/"$app"/helmfile-"$KINDADM_KIND_HELM_ENV".yaml apply --concurrency 1 > /dev/null
     done
   fi
   echo -e "${LIGHT_GREEN}\u2713${NC} Optional apps - ${LIGHT_GREEN}deployed${NC}."

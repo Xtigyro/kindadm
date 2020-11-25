@@ -1,0 +1,7 @@
+{{ readFile "../../../common.yaml" }}
+
+releases:
+  - name: metallb
+    namespace: metallb-system
+    version: 1.0.1
+    <<: *bitnami
