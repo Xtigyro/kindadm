@@ -2,7 +2,7 @@
 
 Create and administer a local one or multi-node Kubernetes cluster(s) in Docker container(s) with properly configured [Helm](https://github.com/helm/helm), [Ingress Controller](https://github.com/kubernetes/ingress-nginx), [MetalLB](https://github.com/metallb/metallb), [Metrics Server](https://github.com/kubernetes-sigs/metrics-server), and [Kubernetes Dashboard](https://github.com/kubernetes/dashboard) with simple interactive commands.
 
-Optional components: [Weave Scope](https://www.weave.works/oss/scope/), [Docker Container Registry](https://docs.docker.com/registry/).
+Optional software: [Docker Container Registry](https://docs.docker.com/registry/), [Weave Scope](https://www.weave.works/oss/scope/).
 
 ## Quick Start
 
@@ -42,6 +42,10 @@ Usage:
 Example:
     kindadm -n=2 -v=1.19.1 -hl='nodeType=devops' -ht -oa=weave-scope -cr -hv=2 -sw
 ```
+
+### Supported Optional Components
+
+- [Docker Container Registry](https://docs.docker.com/registry/).
 
 ### Supported Optional Apps
 
