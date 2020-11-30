@@ -4,3 +4,19 @@ configInline:
     protocol: layer2
     addresses:
     - {{ requiredEnv "KINDADM_KIND_NETW_SHORT" }}.0.1-{{ requiredEnv "KINDADM_KIND_NETW_SHORT" }}.255.255
+controller:
+  resources:
+    limits:
+      cpu: 100m
+      memory: 100Mi
+    requests:
+      memory: 25Mi
+      cpu: 25m
+speaker:
+  resources:
+    limits:
+      cpu: 100m
+      memory: 100Mi
+    requests:
+      memory: 25Mi
+      cpu: 25m

@@ -1,3 +1,27 @@
 global:
   image:
     tag: master-bf6af9cf
+weave-scope-frontend:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 200Mi
+    limits:
+      cpu: 150m
+      memory: 200Mi
+weave-scope-agent:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 200Mi
+    limits:
+      cpu: 100m
+      memory: 200Mi
+weave-scope-cluster-agent:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 200Mi
+    limits:
+      cpu: 100m
+      memory: 200Mi
