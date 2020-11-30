@@ -6,3 +6,18 @@ daemonset:
   useHostPort: true
 metrics:
   enabled: true
+resources:
+  limits:
+    cpu: 150m
+    memory: 256Mi
+  requests:
+    cpu: 50m
+    memory: 128Mi
+defaultBackend:
+  resources:
+    limits:
+      cpu: 150m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
