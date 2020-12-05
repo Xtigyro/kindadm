@@ -1,6 +1,8 @@
 extraArgs:
   enable-ssl-passthrough: ""
 hostNetwork: true
+dnsPolicy: ClusterFirstWithHostNet
+reportNodeInternalIp: true
 kind: DaemonSet
 daemonset:
   useHostPort: true
@@ -8,7 +10,7 @@ metrics:
   enabled: true
 resources:
   limits:
-    cpu: 150m
+    cpu: 100m
     memory: 256Mi
   requests:
     cpu: 50m
@@ -16,7 +18,7 @@ resources:
 defaultBackend:
   resources:
     limits:
-      cpu: 150m
+      cpu: 100m
       memory: 256Mi
     requests:
       cpu: 50m

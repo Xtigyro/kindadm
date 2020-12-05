@@ -3,5 +3,5 @@
 releases:
   - name: metrics-server
     namespace: metrics-server
-    version: 5.0.2
+    version: 5.3.1
     <<: *bitnami
