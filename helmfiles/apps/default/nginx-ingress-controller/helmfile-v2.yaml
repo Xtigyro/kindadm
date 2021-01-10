@@ -4,4 +4,6 @@ releases:
   - name: nginx-ingress-controller
     namespace: ingress
     version: 5.6.15
+    wait: false
+    atomic: false
     <<: *bitnami
