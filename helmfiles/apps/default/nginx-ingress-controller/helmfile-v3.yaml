@@ -3,5 +3,7 @@
 releases:
   - name: nginx-ingress-controller
     namespace: ingress
+    wait: false
+    atomic: false
     version: 7.0.11
     <<: *bitnami
