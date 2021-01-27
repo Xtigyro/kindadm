@@ -5,5 +5,5 @@ releases:
     namespace: ingress
     wait: false
     atomic: false
-    version: 7.0.11
+    version: 7.1.2
     <<: *bitnami
