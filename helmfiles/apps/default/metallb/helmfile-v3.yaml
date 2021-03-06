@@ -3,5 +3,5 @@
 releases:
   - name: metallb
     namespace: metallb-system
-    version: 2.1.2
+    version: 2.3.2
     <<: *bitnami
