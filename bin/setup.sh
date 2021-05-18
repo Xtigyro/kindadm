@@ -4,8 +4,8 @@ set -eu
 # default versions
 HELMFILE_VER='0.139.4'
 HELM_PLUGIN_DIFF_VER='3.1.3'
-KIND_VERSION='0.10.0'
-KUBECTL_VERSION='1.20.6'
+KIND_VERSION='0.11.0'
+KUBECTL_VERSION='1.21.1'
 
 # passed on vars
 HELM_VER="$1"
