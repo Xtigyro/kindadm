@@ -2,10 +2,10 @@
 set -eu
 
 # default versions
-HELMFILE_VER='0.139.7'
+HELMFILE_VER='0.140.1'
 HELM_PLUGIN_DIFF_VER='3.1.3'
 KIND_VERSION='0.11.1'
-KUBECTL_VERSION='1.21.1'
+KUBECTL_VERSION='1.21.5'
 
 # passed on vars
 HELM_VER="$1"
