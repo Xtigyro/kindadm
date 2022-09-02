@@ -66,11 +66,11 @@ if ! `"$EXEC_DIR"/kubectl version --client=true 2>/dev/null | grep -q "$KUBECTL_
     yes | sudo cp "$CACHE_DIR"/kubectl "$EXEC_DIR/kubectl" >/dev/null 2>&1
   fi
   echo -e "\n${LIGHT_GREEN}kubectl installed:${NC}" && \
-  "$EXEC_DIR/kubectl" version --client=true && \
+  "$EXEC_DIR/kubectl" version --client=true --output=yaml && \
   source <("$EXEC_DIR/kubectl" completion bash 2>/dev/null)
 else
   echo -e "\n${LIGHT_GREEN}kubectl present:${NC}" && \
-  "$EXEC_DIR/kubectl" version --client=true && \
+  "$EXEC_DIR/kubectl" version --client=true --output=yaml && \
   source <("$EXEC_DIR/kubectl" completion bash 2>/dev/null)
 fi
 
