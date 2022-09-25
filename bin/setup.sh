@@ -119,7 +119,7 @@ fi
 if ! `"$EXEC_DIR"/helmfile -v 2>/dev/null | grep -q "$HELMFILE_VER"` ; then
   if ! `"$CACHE_DIR"/helmfile -v 2>/dev/null | grep -q "$HELMFILE_VER"` ; then
     echo -e "\n${LIGHT_GREEN}Downloading Helmfile binary...${NC}" && \
-    curl -L https://github.com/roboll/helmfile/releases/download/v"$HELMFILE_VER"/helmfile_linux_amd64 -o "$CACHE_DIR"/helmfile-"$HELMFILE_VER" && \
+    curl -L https://github.com/helmfile/helmfile/releases/download/v"$HELMFILE_VER"/helmfile_linux_amd64.tar.gz -o "$CACHE_DIR"/helmfile-"$HELMFILE_VER" && \
     chmod +x "$CACHE_DIR"/helmfile-"$HELMFILE_VER"
     yes | cp "$CACHE_DIR"/helmfile-"$HELMFILE_VER" "$CACHE_DIR"/helmfile
   else
