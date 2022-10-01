@@ -6,8 +6,8 @@ helmDefaults:
   verify: false
 
 repositories:
-  - name: stable
-    url: https://charts.helm.sh/stable
+  - name: dasmeta
+    url: https://dasmeta.github.io/helm/
   - name: bitnami
     url: https://charts.bitnami.com/bitnami
   - name: kubernetes-dashboard
@@ -18,9 +18,9 @@ templates:
     missingFileHandler: Warn
     values:
       - ./{{ .Release.Name }}.yaml.gotmpl
-  stable: &stable
+  dasmeta: &dasmeta
     <<: *common
-    chart: stable/{{ .Release.Name }}
+    chart: dasmeta/{{ .Release.Name }}
   bitnami: &bitnami
     <<: *common
     chart: bitnami/{{ .Release.Name }}
