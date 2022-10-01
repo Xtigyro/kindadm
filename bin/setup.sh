@@ -19,7 +19,7 @@ LIGHT_RED='\033[1;31m'
 NC='\033[0m' # No Color
 INSTALL_CMD='false'
 DOCKER_PKG='false'
-REQ_BINS=(docker curl wget bash)
+REQ_BINS=(docker curl wget bash jq)
 
 # Check req. pkgs
 OS_ID=$(awk -F= '/^ID=/{print $2}' /etc/os-release)
@@ -33,7 +33,7 @@ elif [ "$OS_ID" == "ubuntu" ] || [ "$OS_ID" == "debian" ] ; then
 fi
 
 # check and advise on missing prerequisite os pkgs
-REQ_PKGS=("$DOCKER_PKG" curl wget bash)
+REQ_PKGS=("$DOCKER_PKG" curl wget bash jq)
 for ((i=0;i<"${#REQ_BINS[@]}";i++)); do
   if ! `command -v "${REQ_BINS[i]}" >/dev/null 2>&1` ; then
     if [[ "$INSTALL_CMD" != 'false' ]] ; then
