@@ -3,5 +3,5 @@
 releases:
   - name: weave-scope
     namespace: weave
-    version: 1.0.0
-    <<: *cloudnativeapp
+    version: 1.0.1
+    <<: *dasmeta
