@@ -10,8 +10,10 @@ repositories:
     url: https://dasmeta.github.io/helm/
   - name: bitnami
     url: https://charts.bitnami.com/bitnami
-  - name: kubernetes-dashboard
+  - name: k8s-dashboard
     url: https://kubernetes.github.io/dashboard
+  # - name: metrics-server
+  #   url: https://kubernetes-sigs.github.io/metrics-server/
 
 templates:
   common: &common

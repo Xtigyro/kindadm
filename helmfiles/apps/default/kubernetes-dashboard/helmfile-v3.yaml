@@ -2,7 +2,7 @@
 
 releases:
   - name: kubernetes-dashboard
-    chart: kubernetes-dashboard/kubernetes-dashboard
-    version: 5.4.1
+    chart: k8s-dashboard/kubernetes-dashboard
+    version: 7.0.3
     namespace: kubernetes-dashboard
     <<: *common

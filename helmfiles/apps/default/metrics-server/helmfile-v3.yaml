@@ -1,7 +1,0 @@
-{{ readFile "../../../common.yaml" }}
-
-releases:
-  - name: metrics-server
-    namespace: metrics-server
-    version: 5.11.9
-    <<: *bitnami
