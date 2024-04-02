@@ -100,7 +100,7 @@ With `--sys_wide` flag the aforementioned binaries will be installed system-wide
 
 ## Credits
 
-My name is [Miroslav Hadzhiev](https://www.linkedin.com/in/mehadzhiev/) - a DevOps Engineer located in Sofia, Bulgaria. I'm glad that you liked my automation.
+My name is [Miroslav Hadzhiev](https://www.linkedin.com/in/mehadzhiev/) - a Cloud & DevOps Engineer located in Sofia, Bulgaria. I'm glad that you liked my automation.
 
 ## License
 
